@@ -1,7 +1,19 @@
 # acm-rust
 
 ## Tests
-(Todo!)
+[ ] ACM tests
+[x] [Prime factor tests](#)
+
+To run all tests:
+```bash
+cargo test
+```
+
+## Documentation
+To build all of the documentation and open it in your browser:
+```bash
+cargo doc --all --open
+```
 
 ## Sub-modules
 
