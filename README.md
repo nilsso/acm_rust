@@ -2,7 +2,7 @@
 
 ## Tests
 - [ ] ACM tests
-- [x] Prime factor tests
+- [x] [Prime factor tests](https://github.com/nilsso/acm-rust/blob/master/tests/prime_factors.rs)
 
 To run all tests:
 ```bash
