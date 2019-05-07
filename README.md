@@ -10,7 +10,7 @@ The `prime_factors` module provides a function `prime_factors` which given an
 integer `n` returns a vector of pairs: the integer factor and power (the number
 of times it is a factor). For example:
 ```rust
-println!("{:?}", prime_factors::prime_factors(10));
+println!("{:?}", prime_factors::prime_factors(420));
 ```
 Yields:
 ```
