@@ -4,8 +4,7 @@ pub struct ArithmeticCongruenceMonoid {
 }
 
 impl ArithmeticCongruenceMonoid {
-    /** Factorize
-     */
-    pub fn factorize() {
+    pub fn factorize(n: u32) -> Vec<(u32,u32)>{
+        prime_factors::prime_factors(n)
     }
 }

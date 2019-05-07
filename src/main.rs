@@ -1,8 +1,11 @@
-pub mod lib;
-pub mod prime_factors;
-
-use prime_factors::prime_factors;
+use std::collections::BTreeSet;
 
 fn main() {
-    println!("{:?}", prime_factors(420));
+    let mut s = BTreeSet::new();
+
+    s.insert(1);
+    s.insert(1);
+    s.insert(2);
+
+    println!("{:?}", s);
 }

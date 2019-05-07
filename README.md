@@ -1,4 +1,4 @@
-# acm-rust
+# acm_rust
 
 ## Tests
 - [ ] ACM tests
