@@ -3,7 +3,7 @@
 ## Tests
 (Todo!)
 
-## Sub-libraries
+## Sub-modules
 
 ### Prime factors
 The `prime_factors` module provides a function `prime_factors` which given an
