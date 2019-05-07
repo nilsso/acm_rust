@@ -1,8 +1,8 @@
 # acm-rust
 
 ## Tests
-[ ] ACM tests
-[x] [Prime factor tests](#)
+- [ ] ACM tests
+- [x] [Prime factor tests](https://github.com/nilsso/acm-rust/blob/master/src/prime_factors.rs#L28)
 
 To run all tests:
 ```bash
