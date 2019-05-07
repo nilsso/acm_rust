@@ -1,3 +1,4 @@
+*.pdf
 /target
 **/*.rs.bk
 Cargo.lock

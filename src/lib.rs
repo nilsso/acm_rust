@@ -1,7 +1,5 @@
-mod acm {
-    struct ArithmeticCongruenceMonoid {
-    }
+pub struct ArithmeticCongruenceMonoid {
+}
 
-    impl ArithmeticCongruenceMonoid {
-    }
+impl ArithmeticCongruenceMonoid {
 }
