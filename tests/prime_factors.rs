@@ -1,5 +1,4 @@
 extern crate acm_rust;
-
 use acm_rust::prime_factors::prime_factors;
 
 #[test]

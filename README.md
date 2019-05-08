@@ -3,6 +3,7 @@
 ## Tests
 - [ ] ACM tests
 - [x] [Prime factor tests](https://github.com/nilsso/acm-rust/blob/master/tests/prime_factors.rs)
+- [ ] [Divisor tests](https://github.com/nilsso/acm-rust/blob/master/tests/divisors.rs)
 
 To run all tests:
 ```bash

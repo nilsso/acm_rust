@@ -18,6 +18,5 @@ pub fn prime_factors(mut n: u32) -> Vec<(u32,u32)> {
             d = n;
         }
     }
-
     pfs
 }
