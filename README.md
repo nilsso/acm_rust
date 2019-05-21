@@ -32,3 +32,6 @@ Yields:
 
 ### Divisors
 (Todo!)
+
+## Notes
+- Consider `HashSet` over `BTreeSet`.
