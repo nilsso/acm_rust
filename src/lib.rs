@@ -11,13 +11,15 @@ pub struct ArithmeticCongruenceMonoid {
     factorizations: HashMap<u32, Vec<Vec<u32>>>,
 }
 
+type ACM = ArithmeticCongruenceMonoid;
+
 impl ArithmeticCongruenceMonoid {
-    pub fn new(a: u32, b: u32) -> ArithmeticCongruenceMonoid {
+    pub fn new(a: u32, b: u32) -> ACM {
         if a % b != a.pow(2) % b {
             // TODO: Proper error handling. Use `Result` instead causing of panic.
             panic!("a and a^2 must be equivalent mod b");
         }
-        ArithmeticCongruenceMonoid {
+        ACM {
             a: a % b,
             b,
             factorizations: hash_map! {
@@ -35,7 +37,7 @@ impl ArithmeticCongruenceMonoid {
     }
 
     pub fn contains(&self, n: u32) -> bool {
-        n % self.b == self.a
+        n == 1 || n % self.b == self.a
     }
 
     pub fn divisors(&self, n: u32) -> Vec<u32> {
@@ -48,59 +50,42 @@ impl ArithmeticCongruenceMonoid {
         ds
     }
 
-    //fn factorize_helper(&self,
-                        //d: u32,
-                        //divisors: &Vec<u32>,
-                        //factorizations: &Vec<Vec<u32>>) -> &Vec<Vec<u32>> {
-        //if divisors.contains(n) {
-        //}
-        //factorizations
-    //}
+    pub fn factorization_is_empty(&self, n: u32) -> bool {
+        self.factorizations.get(&n).unwrap().is_empty()
+    }
 
     pub fn factorize(&mut self, n: u32) -> &Vec<Vec<u32>> {
-        //dbg!(&n);
-
         // Returned if cached
         if self.factorizations.contains_key(&n) {
-            let n_factorizations = self.factorizations.get(&n).unwrap();
-            dbg!((&n, &n_factorizations));
-            return n_factorizations;
+            return self.factorizations.get(&n).unwrap();
         }
 
         // Instantiate new factorization vector
-        //let mut n_factorizations = vec![];
         self.factorizations.insert(n, vec![]);
-        let mut n_factorizations = self.factorizations.get_mut(&n).unwrap();
 
-        // Skip if not an ACM element
         if self.contains(n) {
             let n_divisors = self.divisors(n);
-            let dq_it = n_divisors
-                .iter()
-                .skip(1)
-                .map(|d| (*d, n / d))
-                .filter(|(_d, q)| n_divisors.contains(&q));
+            let dq_it = n_divisors.iter().skip(1).map(|d| (*d, n / d));
+
+            let add_factorization = |acm: &mut ACM, n, factorization| {
+                acm.factorizations.get_mut(n).unwrap().push(factorization)
+            };
+
             for (d, q) in dq_it {
-                //dbg!((&n, &d, &q, &n_factorizations));
-                if q == 1 && n_factorizations.is_empty() {
-                    n_factorizations.push(vec![n]);
-                } else if self.factorize(d).first().unwrap().len() == 1 {
-                    for mut q_factorization in self.factorize(q).iter().cloned() {
-                        dbg!((&d, &q_factorization));
-                        if q_factorization.is_empty() || &d >= q_factorization.last().unwrap() {
-                            q_factorization.push(d);
-                            n_factorizations.push(q_factorization);
-                            dbg!((&n, &n_factorizations));
+                if q == 1 || n_divisors.contains(&q) {
+                    if q == 1 && self.factorization_is_empty(n) {
+                        add_factorization(self, &n, vec![n]);
+                    } else if self.factorize(d).first().unwrap().len() == 1 {
+                        for mut q_factorization in self.factorize(q).clone().into_iter() {
+                            if q_factorization.is_empty() || &d >= q_factorization.last().unwrap() {
+                                q_factorization.push(d);
+                                add_factorization(self, &n, q_factorization);
+                            }
                         }
                     }
                 }
             }
         }
-
-        // Move into hash map and return reference from hash map
-        dbg!((&n, &n_factorizations));
-        //self.factorizations.insert(n, n_factorizations);
-        //self.factorizations.get(&n).unwrap()
-        n_factorizations
+        self.factorizations.get(&n).unwrap()
     }
 }
