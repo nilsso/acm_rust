@@ -18,16 +18,44 @@ we get a Hilbert monoid:
 <img src="./tex/hilbert.png" height="24pt">
 </center>
 
+Over an ACM, we can factor integers into elements of the ACM. This is similar to
+simple prime factorization except that each factor must be an element of the
+ACM. We call elements which cannot be expressed as the product of smaller ACM
+elements *atoms*.
+
+Finally, the purpose of this library is to study the atomic density of different
+ACMs, that is, the distance between atoms. In certain ACMs the atomic density is
+provably constant throughout, but in others it is unknown, not dissimilar to the
+density of prime integers in the set of all integers.
+
 ## CLI
 First build:
 ```
 cargo b
 ```
-Which provides `acm_rust` with subcommands to test the main ACM module
-and the divisors/factorize submodules.
+Provided is a CLI program `acm_rust` with subcommands to test the main ACM
+module and the divisors/factorize submodules.
 ```
 > ./target/debug/acm_rust ACM 3 6 F 225 -v
 ACM(3,6) prime power factorization of 225 : [[15, 15], [3, 75]]
+```
+
+For a full list of usage call the program with `-h`:
+```
+> ./target/debug/acm_rust -h
+USAGE:
+    acm_rust [FLAGS] [SUBCOMMAND]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+    -v               Set verbose output
+
+SUBCOMMANDS:
+    ACM     ArithmeticCongruenceMonoid subcommand
+    D       Integer divisors subcommand
+    F       Integer factorization subcommand
+    help    Prints this message or the help of the given subcommand(s)
 ```
 
 <!--

@@ -56,6 +56,22 @@ fn main() {
             } else {
                 println!("{:?}", acm.divisors(n));
             }
+        } else if let Some(matches) = matches.subcommand_matches("E") {
+            let n = parse_subcommand_arg(&matches, "n");
+            let s = match matches.value_of("s") {
+                Some(s) => s.parse().unwrap(),
+                None => a
+            };
+            if verbose {
+                println!("ACM({},{}) {} elements starting at {} : {:?}",
+                a,
+                b,
+                n,
+                s,
+                acm.elements(n, s));
+            } else {
+                println!("{:?}", acm.elements(n, s));
+            }
         }
     }
 }

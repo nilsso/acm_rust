@@ -89,4 +89,10 @@ impl ArithmeticCongruenceMonoid {
         }
         self.factorizations.get(&n).unwrap()
     }
+
+    // Generate n elements (starting from nearest below s)
+    pub fn elements(&self, n: u32, s: u32) -> Vec<u32> {
+        let s = s - (s - self.a) % self.b;
+        (0..n).map(|i| s + i*self.b).collect()
+    }
 }

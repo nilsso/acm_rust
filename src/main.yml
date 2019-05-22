@@ -42,3 +42,13 @@ subcommands:
                     - n:
                         required: true
                         help: Integer number to get divisors of
+            - E:
+                about: Generate ACM elements
+                args:
+                    - n:
+                        required: true
+                        help: Number of elements to generate
+                    - s:
+                        help: "Number to begin at (if not an ACM element, starts
+                        at the nearest lower element). If omitted starts at the
+                        a component."
