@@ -17,7 +17,11 @@ fn main() {
     if let Some(matches) = matches.subcommand_matches("F") {
         let n = parse_subcommand_arg(&matches, "n");
         if verbose {
-            println!("integer prime power factorization of {} : {:?}", n, prime_factors(n));
+            println!(
+                "integer prime power factorization of {} : {:?}",
+                n,
+                prime_factors(n)
+            );
         } else {
             println!("{:?}", prime_factors(n));
         }
@@ -35,7 +39,13 @@ fn main() {
         if let Some(matches) = matches.subcommand_matches("F") {
             let n = parse_subcommand_arg(&matches, "n");
             if verbose {
-                println!("ACM({},{}) prime power factorization of {} : {:?}", a, b, n, acm.factorize(n));
+                println!(
+                    "ACM({},{}) prime power factorization of {} : {:?}",
+                    a,
+                    b,
+                    n,
+                    acm.factorize(n)
+                );
             } else {
                 println!("{:?}", acm.factorize(n));
             }

@@ -36,14 +36,14 @@ impl ArithmeticCongruenceMonoid {
         self.b
     }
 
-    pub fn contains(&self, n: u32) -> bool {
-        n == 1 || n % self.b == self.a
+    pub fn contains(&self, n: &u32) -> bool {
+        *n == 1 || n % self.b == self.a
     }
 
     pub fn divisors(&self, n: u32) -> Vec<u32> {
         let mut ds = vec![];
         for d in divisors::divisors(n) {
-            if self.contains(d) {
+            if self.contains(&d) {
                 ds.push(d);
             }
         }
@@ -59,21 +59,20 @@ impl ArithmeticCongruenceMonoid {
     }
 
     pub fn factorize(&mut self, n: u32) -> &Vec<Vec<u32>> {
-        // Returned if cached
         if self.factorizations.contains_key(&n) {
             return self.factorizations.get(&n).unwrap();
         }
 
-        // Instantiate new factorization vector
         self.factorizations.insert(n, vec![]);
 
-        if self.contains(n) {
+        if self.contains(&n) {
             let n_divisors = self.divisors(n);
-
-            for (d, q) in n_divisors.iter().skip(1).map(|d| (*d, n / d)) {
-                if !n_divisors.contains(&q) {
-                    continue;
-                }
+            for (d, q) in n_divisors
+                .iter()
+                .skip(1)
+                .map(|d| (*d, n / d))
+                .filter(|(_d, q)| n_divisors.contains(&q))
+            {
                 if q == 1 && self.factorization_is_empty(n) {
                     self.add_factorization(n, vec![n]);
                 } else if let Some(d_factorizations) = self.factorize(d).first() {
