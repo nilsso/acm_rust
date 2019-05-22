@@ -20,12 +20,12 @@ we get a Hilbert monoid:
 
 ## CLI
 First build:
-```bash
+```
 cargo b
 ```
 Which provides `acm_rust` with subcommands to test the main ACM module
 and the divisors/factorize submodules.
-```bash
+```
 > ./target/debug/acm_rust ACM 3 6 F 225 -v
 ACM(3,6) prime power factorization of 225 : [[15, 15], [3, 75]]
 ```
@@ -57,11 +57,11 @@ ACM(3,6) prime power factorization of 225 : [[15, 15], [3, 75]]
 
 ## Documentation
 Build all documentation and open in your browser:
-```bash
+```
 cargo doc --all --open
 ```
 
 ## Tests
-```bash
+```
 cargo t
 ```
