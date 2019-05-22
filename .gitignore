@@ -1,3 +1,6 @@
+*.log
+*.aux
+*.out
 *.pdf
 /target
 **/*.rs.bk
