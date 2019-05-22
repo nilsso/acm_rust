@@ -40,7 +40,7 @@ module and the divisors/factorize submodules.
 ACM(3,6) prime power factorization of 225 : [[15, 15], [3, 75]]
 ```
 
-For a full list of usage call the program with `-h`:
+For a full list of usage call the program with the `-h` flag:
 ```
 > ./target/debug/acm_rust -h
 USAGE:
