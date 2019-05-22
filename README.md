@@ -26,7 +26,7 @@ elements *atoms*.
 Finally, the purpose of this library is to study the atomic density of different
 ACMs, that is, the distance between atoms. In certain ACMs the atomic density is
 provably constant throughout, but in others it is unknown, not dissimilar to the
-density of prime integers in the set of all integers.
+density, or lack thereof, of prime integers in the set of all integers.
 
 ## CLI
 First build:
