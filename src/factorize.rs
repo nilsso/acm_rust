@@ -1,4 +1,4 @@
-pub fn prime_factors(mut n: u32) -> Vec<(u32, u32)> {
+pub fn factorize(mut n: u32) -> Vec<(u32, u32)> {
     let mut pfs: Vec<(u32, u32)> = Vec::new();
     let mut d = 2;
     while n > 1 {

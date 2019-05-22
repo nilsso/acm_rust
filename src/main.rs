@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate clap;
 
-use acm_rust::divisors::divisors;
-use acm_rust::prime_factors::prime_factors;
+use acm_rust::factorize;
+use acm_rust::divisors;
 use acm_rust::ArithmeticCongruenceMonoid as ACM;
 use clap::App;
 
@@ -20,17 +20,17 @@ fn main() {
             println!(
                 "integer prime power factorization of {} : {:?}",
                 n,
-                prime_factors(n)
+                factorize::factorize(n)
             );
         } else {
-            println!("{:?}", prime_factors(n));
+            println!("{:?}", factorize::factorize(n));
         }
     } else if let Some(matches) = matches.subcommand_matches("D") {
         let n = parse_subcommand_arg(&matches, "n");
         if verbose {
-            println!("integer divisors of {} : {:?}", n, divisors(n));
+            println!("integer divisors of {} : {:?}", n, divisors::divisors(n));
         } else {
-            println!("{:?}", divisors(n));
+            println!("{:?}", divisors::divisors(n));
         }
     } else if let Some(matches) = matches.subcommand_matches("ACM") {
         let a = parse_subcommand_arg(&matches, "a");

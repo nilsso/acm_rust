@@ -1,5 +1,5 @@
 [package]
-name = "acm-rust"
+name = "acm_rust"
 version = "0.1.0"
 authors = ["Nils Olsson <nilso@enosis.net>"]
 edition = "2018"

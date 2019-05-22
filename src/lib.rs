@@ -1,5 +1,5 @@
 pub mod divisors;
-pub mod prime_factors;
+pub mod factorize;
 
 use common_macros::hash_map;
 use std::collections::HashMap;
