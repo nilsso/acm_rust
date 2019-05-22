@@ -1,0 +1,44 @@
+name: acm_rust
+version: "0.1"
+author: nilsso <nilso@enosis.net>
+args:
+    - verbose:
+        short: v
+        global: true
+        multiple: true
+        help: Set verbose output
+subcommands:
+    - F:
+        about: Integer factorization subcommand
+        args:
+            - n:
+                required: true
+                help: Integer number to get prime and power factorization of
+    - D:
+        about: Integer divisors subcommand
+        args:
+            - n:
+                help: Integer number to get divisors of
+                required: true
+    - ACM:
+        about: ArithmeticCongruenceMonoid subcommand
+        args:
+            - a:
+                required: true
+                help: a component of ACM
+            - b:
+                required: true
+                help: b component of ACM
+        subcommands:
+            - F:
+                about: ACM factorization subcommand
+                args:
+                    - n:
+                        required: true
+                        help: Integer number to get divisors of
+            - D:
+                about: ACM divisors subcommand
+                args:
+                    - n:
+                        required: true
+                        help: Integer number to get divisors of
