@@ -54,6 +54,10 @@ impl ArithmeticCongruenceMonoid {
         self.factorizations.get(&n).unwrap().is_empty()
     }
 
+    fn add_factorization(&mut self, n: u32, factorization: Vec<u32>) {
+        self.factorizations.get_mut(&n).unwrap().push(factorization)
+    }
+
     pub fn factorize(&mut self, n: u32) -> &Vec<Vec<u32>> {
         // Returned if cached
         if self.factorizations.contains_key(&n) {
@@ -65,21 +69,19 @@ impl ArithmeticCongruenceMonoid {
 
         if self.contains(n) {
             let n_divisors = self.divisors(n);
-            let dq_it = n_divisors.iter().skip(1).map(|d| (*d, n / d));
 
-            let add_factorization = |acm: &mut ACM, n, factorization| {
-                acm.factorizations.get_mut(n).unwrap().push(factorization)
-            };
-
-            for (d, q) in dq_it {
-                if q == 1 || n_divisors.contains(&q) {
-                    if q == 1 && self.factorization_is_empty(n) {
-                        add_factorization(self, &n, vec![n]);
-                    } else if self.factorize(d).first().unwrap().len() == 1 {
+            for (d, q) in n_divisors.iter().skip(1).map(|d| (*d, n / d)) {
+                if !n_divisors.contains(&q) {
+                    continue;
+                }
+                if q == 1 && self.factorization_is_empty(n) {
+                    self.add_factorization(n, vec![n]);
+                } else if let Some(d_factorizations) = self.factorize(d).first() {
+                    if d_factorizations.len() == 1 {
                         for mut q_factorization in self.factorize(q).clone().into_iter() {
                             if q_factorization.is_empty() || &d >= q_factorization.last().unwrap() {
                                 q_factorization.push(d);
-                                add_factorization(self, &n, q_factorization);
+                                self.add_factorization(n, q_factorization);
                             }
                         }
                     }
