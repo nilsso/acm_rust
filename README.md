@@ -31,18 +31,18 @@ First build:
 ```
 cargo b
 ```
-Provided is a CLI program `acm_rust` with subcommands to test the main ACM
+Provided is a CLI program `acm-cli` with subcommands to test the main ACM
 module and the divisors/factorize submodules.
 ```
-> ./target/debug/acm_rust ACM 3 6 F 225 -v
+> ./target/debug/acm-cli ACM 3 6 F 225 -v
 ACM(3,6) prime power factorization of 225 : [[15, 15], [3, 75]]
 ```
 
 For full usage lists, try it, and any subcommand, with the `-h` flag:
 ```
-> ./target/debug/acm_rust -h
+> ./target/debug/acm-cli -h
 USAGE:
-    acm_rust [FLAGS] [SUBCOMMAND]
+    acm-cli [FLAGS] [SUBCOMMAND]
 
 FLAGS:
     -h, --help       Prints help information
