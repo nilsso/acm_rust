@@ -1,4 +1,5 @@
-# Simple script to replace LaTeX in markdown files with HTML image tags.
+# Simple script to replace LaTeX in markdown files with HTML image tags, since
+# doing it by hand was starting to get too tedious.
 #
 # Pulls the math code from each inline/display math environment, writes numbered
 # LaTeX files in an output LaTeX directory using the pulled code and a LaTeX
