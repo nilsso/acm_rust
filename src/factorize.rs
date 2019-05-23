@@ -1,4 +1,9 @@
 /// Returns the prime power factorization of an integer.
+///
+/// # Examples
+/// ```
+/// assert_eq!(acm::factorize(120), [(2, 3), (3, 1), (5, 1)]);
+/// ```
 pub fn factorize(mut n: u32) -> Vec<(u32, u32)> {
     let mut pfs: Vec<(u32, u32)> = Vec::new();
     let mut d = 2;

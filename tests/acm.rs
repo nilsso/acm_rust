@@ -1,15 +1,15 @@
 extern crate acm;
 
-use std::panic;
 use acm::ArithmeticCongruenceMonoid as ACM;
+use std::panic;
 
 fn helper(a: u32, b: u32, n: u32, ans: Vec<Vec<u32>>) {
-    assert_eq!(ACM::new(a, b).factorize(n).to_vec(), ans);
+    assert_eq!(ACM::new(a, b).unwrap().factorize(n).to_vec(), ans);
 }
 
 //#[test]
 //fn acm_valid() {
-    //assert!(panic::catch_unwind(|| { ACM::new(1,4); }).is_ok());
+//assert!(panic::catch_unwind(|| { ACM::new(1,4); }).is_ok());
 //}
 
 #[test]
