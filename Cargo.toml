@@ -12,15 +12,16 @@ license = "MIT"
 
 [lib]
 name = "acm"
-path = "src/lib.rs"
+path = "src/acm.rs"
 
 [[bin]]
 name = "acm-cli"
-path = "src/main.rs"
+path = "src/acm-cli.rs"
 
 [dependencies]
 common_macros = "0.1.1"
 clap = { version = "2.33.0", features = ["yaml"] }
+failure = "0.1.5"
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "katex-header.html" ]
