@@ -1,7 +1,7 @@
-extern crate acm_rust;
+extern crate acm;
 
 use std::panic;
-use acm_rust::ArithmeticCongruenceMonoid as ACM;
+use acm::ArithmeticCongruenceMonoid as ACM;
 
 fn helper(a: u32, b: u32, n: u32, ans: Vec<Vec<u32>>) {
     assert_eq!(ACM::new(a, b).factorize(n).to_vec(), ans);

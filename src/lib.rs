@@ -1,5 +1,9 @@
-pub mod divisors;
-pub mod factorize;
+mod divisors;
+mod factorize;
+
+// Provide submodule functions as crate functions
+pub use divisors::divisors;
+pub use factorize::factorize;
 
 use common_macros::hash_map;
 use std::collections::HashMap;
@@ -19,15 +23,14 @@ impl ArithmeticCongruenceMonoid {
     ///
     /// # Examples
     /// ```
-    /// # use acm_rust::ArithmeticCongruenceMonoid;
     /// // A valid ACM
     /// assert!(std::panic::catch_unwind(|| {
-    ///     ArithmeticCongruenceMonoid::new(1, 4);
+    ///     acm::ArithmeticCongruenceMonoid::new(1, 4);
     /// }).is_ok());
     ///
     /// // An invalid ACM which causes a panic
     /// assert!(std::panic::catch_unwind(|| {
-    ///     ArithmeticCongruenceMonoid::new(2, 4);
+    ///     acm::ArithmeticCongruenceMonoid::new(2, 4);
     /// }).is_err());
     /// ```
     pub fn new(a: u32, b: u32) -> ACM {
@@ -59,8 +62,7 @@ impl ArithmeticCongruenceMonoid {
     /// # Examples
     ///
     /// ```
-    /// # use acm_rust::ArithmeticCongruenceMonoid;
-    /// let acm = ArithmeticCongruenceMonoid::new(1, 4);
+    /// let acm = acm::ArithmeticCongruenceMonoid::new(1, 4);
     /// assert!(acm.contains(&5));
     /// assert!(!acm.contains(&6));
     /// ```
@@ -70,7 +72,7 @@ impl ArithmeticCongruenceMonoid {
 
     pub fn divisors(&self, n: u32) -> Vec<u32> {
         let mut ds = vec![];
-        for d in divisors::divisors(n) {
+        for d in divisors(n) {
             if self.contains(&d) {
                 ds.push(d);
             }
@@ -123,8 +125,7 @@ impl ArithmeticCongruenceMonoid {
     /// # Examples
     ///
     /// ```
-    /// # use acm_rust::ArithmeticCongruenceMonoid;
-    /// let acm = ArithmeticCongruenceMonoid::new(1, 4);
+    /// let acm = acm::ArithmeticCongruenceMonoid::new(1, 4);
     /// assert_eq!(acm.elements(5, 1), vec![1, 5, 9, 13, 17]);
     /// ```
     pub fn elements(&self, n: u32, s: u32) -> Vec<u32> {

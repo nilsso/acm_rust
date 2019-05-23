@@ -1,4 +1,4 @@
-name: acm_rust
+name: acm-cli
 version: "0.1"
 author: nilsso <nilso@enosis.net>
 args:

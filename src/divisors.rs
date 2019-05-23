@@ -1,14 +1,6 @@
-//! Test
-//! $$
-//! f(x)
-//! $$
+use crate::factorize;
 
-use crate::factorize::factorize;
-
-/// Test
-/// $$
-/// f(x)
-/// $$
+/// Returns the integer divisors of an integer.
 pub fn divisors(n: u32) -> Vec<u32> {
     let mut divisors = vec![1];
     for (factor, m) in factorize(n) {

@@ -1,9 +1,11 @@
+//! Test
+
+use acm::divisors;
+use acm::factorize;
+use acm::ArithmeticCongruenceMonoid as ACM;
+
 #[macro_use]
 extern crate clap;
-
-use acm_rust::divisors;
-use acm_rust::factorize;
-use acm_rust::ArithmeticCongruenceMonoid as ACM;
 use clap::App;
 
 fn parse_subcommand_arg(m: &clap::ArgMatches<'_>, arg: &str) -> u32 {
@@ -20,17 +22,17 @@ fn main() {
             println!(
                 "integer prime power factorization of {} : {:?}",
                 n,
-                factorize::factorize(n)
+                factorize(n)
             );
         } else {
-            println!("{:?}", factorize::factorize(n));
+            println!("{:?}", factorize(n));
         }
     } else if let Some(matches) = matches.subcommand_matches("D") {
         let n = parse_subcommand_arg(&matches, "n");
         if verbose {
-            println!("integer divisors of {} : {:?}", n, divisors::divisors(n));
+            println!("integer divisors of {} : {:?}", n, divisors(n));
         } else {
-            println!("{:?}", divisors::divisors(n));
+            println!("{:?}", divisors(n));
         }
     } else if let Some(matches) = matches.subcommand_matches("ACM") {
         let a = parse_subcommand_arg(&matches, "a");

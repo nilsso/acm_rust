@@ -1,5 +1,5 @@
-extern crate acm_rust;
-use acm_rust::factorize::factorize;
+extern crate acm;
+use acm::factorize;
 
 #[test]
 fn factorize_of_2() {

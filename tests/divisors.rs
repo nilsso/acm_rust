@@ -1,5 +1,5 @@
-extern crate acm_rust;
-use acm_rust::divisors::divisors;
+extern crate acm;
+use acm::divisors;
 
 fn helper(n: u32, ans: Vec<u32>) {
     let mut divisors = divisors(n);

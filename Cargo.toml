@@ -1,8 +1,16 @@
 [package]
-name = "acm_rust"
+name = "acm"
 version = "0.1.0"
 authors = ["Nils Olsson <nilso@enosis.net>"]
 edition = "2018"
+
+[lib]
+name = "acm"
+path = "src/lib.rs"
+
+[[bin]]
+name = "acm-cli"
+path = "src/main.rs"
 
 [dependencies]
 common_macros = "0.1.1"

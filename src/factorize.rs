@@ -1,3 +1,4 @@
+/// Returns the prime power factorization of an integer.
 pub fn factorize(mut n: u32) -> Vec<(u32, u32)> {
     let mut pfs: Vec<(u32, u32)> = Vec::new();
     let mut d = 2;
