@@ -1,12 +1,16 @@
 extern crate acm_rust;
-use acm_rust::ArithmeticCongruenceMonoid;
+
+use std::panic;
+use acm_rust::ArithmeticCongruenceMonoid as ACM;
 
 fn helper(a: u32, b: u32, n: u32, ans: Vec<Vec<u32>>) {
-    assert_eq!(
-        ArithmeticCongruenceMonoid::new(a, b).factorize(n).to_vec(),
-        ans
-    );
+    assert_eq!(ACM::new(a, b).factorize(n).to_vec(), ans);
 }
+
+//#[test]
+//fn acm_valid() {
+    //assert!(panic::catch_unwind(|| { ACM::new(1,4); }).is_ok());
+//}
 
 #[test]
 fn acm_1_4_factorize_1() {

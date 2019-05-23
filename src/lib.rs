@@ -14,6 +14,22 @@ pub struct ArithmeticCongruenceMonoid {
 type ACM = ArithmeticCongruenceMonoid;
 
 impl ArithmeticCongruenceMonoid {
+    /// Constructs a new ACM with components `a` and `b`,
+    /// requiring that `a % b == a.pow(2) % b`.
+    ///
+    /// # Examples
+    /// ```
+    /// # use acm_rust::ArithmeticCongruenceMonoid;
+    /// // A valid ACM
+    /// assert!(std::panic::catch_unwind(|| {
+    ///     ArithmeticCongruenceMonoid::new(1, 4);
+    /// }).is_ok());
+    ///
+    /// // An invalid ACM which causes a panic
+    /// assert!(std::panic::catch_unwind(|| {
+    ///     ArithmeticCongruenceMonoid::new(2, 4);
+    /// }).is_err());
+    /// ```
     pub fn new(a: u32, b: u32) -> ACM {
         if a % b != a.pow(2) % b {
             // TODO: Proper error handling. Use `Result` instead causing of panic.
@@ -28,14 +44,26 @@ impl ArithmeticCongruenceMonoid {
         }
     }
 
+    /// Returns the `a` component of the ACM.
     pub fn a(&self) -> u32 {
         self.a
     }
 
+    /// Returns the `b` component of the ACM.
     pub fn b(&self) -> u32 {
         self.b
     }
 
+    /// Returns `true` if `n` is not an element of the ACM.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use acm_rust::ArithmeticCongruenceMonoid;
+    /// let acm = ArithmeticCongruenceMonoid::new(1, 4);
+    /// assert!(acm.contains(&5));
+    /// assert!(!acm.contains(&6));
+    /// ```
     pub fn contains(&self, n: &u32) -> bool {
         *n == 1 || n % self.b == self.a
     }
@@ -50,7 +78,7 @@ impl ArithmeticCongruenceMonoid {
         ds
     }
 
-    pub fn factorization_is_empty(&self, n: u32) -> bool {
+    fn factorization_is_empty(&self, n: u32) -> bool {
         self.factorizations.get(&n).unwrap().is_empty()
     }
 
@@ -75,12 +103,12 @@ impl ArithmeticCongruenceMonoid {
             {
                 if q == 1 && self.factorization_is_empty(n) {
                     self.add_factorization(n, vec![n]);
-                } else if let Some(d_factorizations) = self.factorize(d).first() {
-                    if d_factorizations.len() == 1 {
-                        for mut q_factorization in self.factorize(q).clone().into_iter() {
-                            if q_factorization.is_empty() || &d >= q_factorization.last().unwrap() {
-                                q_factorization.push(d);
-                                self.add_factorization(n, q_factorization);
+                } else if let Some(d_fs) = self.factorize(d).first() {
+                    if d_fs.len() == 1 {
+                        for mut q_f in self.factorize(q).clone().into_iter() {
+                            if q_f.is_empty() || &d >= q_f.last().unwrap() {
+                                q_f.push(d);
+                                self.add_factorization(n, q_f);
                             }
                         }
                     }
@@ -90,9 +118,17 @@ impl ArithmeticCongruenceMonoid {
         self.factorizations.get(&n).unwrap()
     }
 
-    // Generate n elements (starting from nearest below s)
+    /// Generate `n` ACM elements starting at nearest element below or equal to `s`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use acm_rust::ArithmeticCongruenceMonoid;
+    /// let acm = ArithmeticCongruenceMonoid::new(1, 4);
+    /// assert_eq!(acm.elements(5, 1), vec![1, 5, 9, 13, 17]);
+    /// ```
     pub fn elements(&self, n: u32, s: u32) -> Vec<u32> {
         let s = s - (s - self.a) % self.b;
-        (0..n).map(|i| s + i*self.b).collect()
+        (0..n).map(|i| s + i * self.b).collect()
     }
 }

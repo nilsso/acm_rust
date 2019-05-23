@@ -1,5 +1,14 @@
+//! Test
+//! $$
+//! f(x)
+//! $$
+
 use crate::factorize::factorize;
 
+/// Test
+/// $$
+/// f(x)
+/// $$
 pub fn divisors(n: u32) -> Vec<u32> {
     let mut divisors = vec![1];
     for (factor, m) in factorize(n) {

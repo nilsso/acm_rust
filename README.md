@@ -8,14 +8,14 @@ Implements [arithmetic congruence monoids][math-acm] (ACM) in Rust.
 In a nutshell, an ACM is an arithmetic progression which possesses a multiplicative structure,
 and specifically is the monoid:
 <center>
-<img src="./tex/acm.png" height="24pt">
+<img src="./doc/tex/acm.png" height="24pt">
 </center>
 
-With <img src="./tex/hilbert-a.png" height="14pt">
-and <img src="./tex/hilbert-b.png" height="14pt">
+With <img src="./doc/tex/hilbert-a.png" height="14pt">
+and <img src="./doc/tex/hilbert-b.png" height="14pt">
 we get a Hilbert monoid:
 <center>
-<img src="./tex/hilbert.png" height="24pt">
+<img src="./doc/tex/hilbert.png" height="24pt">
 </center>
 
 Over an ACM, we can factor integers into elements of the ACM. This is similar to

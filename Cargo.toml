@@ -7,3 +7,6 @@ edition = "2018"
 [dependencies]
 common_macros = "0.1.1"
 clap = { version = "2.33.0", features = ["yaml"] }
+
+[package.metadata.docs.rs]
+rustdoc-args = [ "--html-in-header", "katex-header.html" ]
