@@ -3,6 +3,12 @@ name = "acm"
 version = "0.1.0"
 authors = ["Nils Olsson <nilso@enosis.net>"]
 edition = "2018"
+description = "Arithmetic congruence monoid implementation in Rust"
+repository = "https://github.com/nilsso/acm_rust/"
+documentation = "https://docs.rs/acm/"
+homepage = "https://github.com/nilsso/acm_rust/"
+readme = "README.md"
+license = "MIT"
 
 [lib]
 name = "acm"

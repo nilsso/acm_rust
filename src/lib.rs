@@ -57,7 +57,7 @@ impl ArithmeticCongruenceMonoid {
         self.b
     }
 
-    /// Returns `true` if `n` is not an element of the ACM.
+    /// Returns `true` if `n` is an element of the ACM.
     ///
     /// # Examples
     ///
