@@ -7,14 +7,14 @@ Implements [arithmetic congruence monoids][math-acm] (ACM) in Rust.
 
 In a nutshell, an ACM is an arithmetic progression which possesses a multiplicative structure,
 and specifically is the monoid:
-<center>
-<img src="img//2.png" height=24pt>
-</center>
+$$
+M_{a,b}=\{a+bm:m\in\mathbb{Z}_{\ge 0}\}\cup\{1\}=\{1,a,a+b,a+2b,\ldots\}
+$$
 
-With <img src="img//0.png" height=14pt> and <img src="img//1.png" height=14pt> we get a Hilbert monoid:
-<center>
-<img src="img//3.png" height=24pt>
-</center>
+With $a=1$ and $b=4$ we get a Hilbert monoid:
+$$
+M_{1,4}=\{1+4m:m\in\mathbb{Z}_{\ge 0}\}\cup\{1\}=\{1,5,9,13,17,\ldots\}
+$$
 
 Over an ACM, we can factor integers into elements of the ACM. This is similar to
 simple prime factorization except that each factor must be an element of the
