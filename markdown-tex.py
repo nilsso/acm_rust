@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Simple script to replace LaTeX in markdown files with HTML image tags, since
 # doing it by hand was starting to get too tedious.
 #
