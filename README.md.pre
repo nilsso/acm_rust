@@ -34,52 +34,29 @@ cargo b
 Provided is a CLI program `acm-cli` with subcommands to test the main ACM
 module and the divisors/factorize submodules.
 ```
-> ./target/debug/acm-cli ACM 3 6 F 225 -v
-ACM(3,6) prime power factorization of 225 : [[15, 15], [3, 75]]
+> ./target/debug/acm-cli acm 3 6 factorize 225
+[[15, 15], [3, 75]]
 ```
 
 For full usage lists, try it, and any subcommand, with the `-h` flag:
 ```
 > ./target/debug/acm-cli -h
+acm-cli 0.1
+nilsso <nilso@enosis.net>
+
 USAGE:
-    acm-cli [FLAGS] [SUBCOMMAND]
+    acm-cli <SUBCOMMAND>
 
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
-    -v               Set verbose output
 
 SUBCOMMANDS:
-    ACM     ArithmeticCongruenceMonoid subcommand
-    D       Integer divisors subcommand
-    F       Integer factorization subcommand
-    help    Prints this message or the help of the given subcommand(s)
+    acm          ArithmeticCongruenceMonoid subcommand
+    divisors     Integer divisors subcommand
+    factorize    Integer factorization subcommand
+    help         Prints this message or the help of the given subcommand(s)
 ```
-
-<!--
-   -
-   -## Submodules
-   -
-   -### Prime power factorization
-   -The [`factorize`][factorize] submodule provides a function `factorize` which
-   -given an integer returns a vector of pairs of prime integer factors and powers
-   -(the number of times it is a factor). For example:
-   -```rust
-   -assert_eq!(prime_factors::factorize(420), vec![(2, 2), (3, 1), (5, 1), (7, 1)]);
-   -```
-   -
-   -[factorize]: https://github.com/nilsso/acm_rust/blob/master/src/factorize.rs
-   -
-   -### Divisors
-   -The [`divisors`][divisors] submodule provides a function `divisors` which given an
-   -integer returns a vector of integer divisors.
-   -For example:
-   -```rust
-   -assert_eq!(divisors::divisors(18), vec![1, 2, 3, 9, 6, 18]);
-   -```
-   -
-   -[divisors]: https://github.com/nilsso/acm_rust/blob/master/src/divisors.rs
-   -->
 
 ## Documentation
 Build all documentation and open in your browser:
