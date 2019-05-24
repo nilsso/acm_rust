@@ -59,9 +59,9 @@ SUBCOMMANDS:
 ```
 
 ## Documentation
-Build all documentation and open in your browser:
+Build all documentation locall and open in your browser:
 ```
-cargo doc --all --open
+RUSTDOCFLAGS="--html-in-header katex-header.html" cargo doc --no-deps --open
 ```
 
 ## Tests
