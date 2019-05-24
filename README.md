@@ -1,6 +1,9 @@
 Arithmetic Congruence Monoid
 ============================
 
+[![Latest version](https://img.shields.io/crates/v/acm.svg)](https://crates.io/crates/acm)
+[![Documentation](https://docs.rs/acm/badge.svg)](https://docs.rs/acm)
+
 Implements [arithmetic congruence monoids][math-acm] (ACM) in Rust.
 
 [math-acm]: http://faculty.fairfield.edu/pbaginski/Papers/SubmittedACMSurvey%20RevisedReferee%2001.20.2013.pdf
