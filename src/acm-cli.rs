@@ -26,7 +26,10 @@ fn main() {
         let b = parse_subcommand_arg(&matches, "b");
         match ACM::new(a, b) {
             Ok(mut acm) => {
-                if let Some(matches) = matches.subcommand_matches("elements") {
+                if let Some(matches) = matches.subcommand_matches("element") {
+                    let n = parse_subcommand_arg(&matches, "n");
+                    println!("{}", acm.element(n));
+                } else if let Some(matches) = matches.subcommand_matches("elements") {
                     let n = parse_subcommand_arg(&matches, "n");
                     let s = match matches.value_of("s") {
                         Some(s) => s.parse().unwrap(),
@@ -52,6 +55,13 @@ fn main() {
                         None => a,
                     };
                     println!("{:?}", acm.atoms(n, s));
+                } else if let Some(matches) = matches.subcommand_matches("atom_density") {
+                    let n = parse_subcommand_arg(&matches, "n");
+                    let s = match matches.value_of("s") {
+                        Some(s) => s.parse().unwrap(),
+                        None => a,
+                    };
+                    println!("{:?}", acm.atom_density(n, s));
                 }
             }
             Err(err) => println!("Invalid ACM: {}", err),

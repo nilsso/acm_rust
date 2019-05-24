@@ -28,6 +28,12 @@ subcommands:
                 required: true
                 help: b component of ACM
         subcommands:
+            - element:
+                about: Get nearest ACM element equal to or less than integer
+                args:
+                    - n:
+                        required: true
+                        help: Integer number to get nearest from
             - elements:
                 about: Generate ACM elements
                 args:
@@ -72,4 +78,13 @@ subcommands:
                         help: "Number to begin at (if not an ACM element, starts
                         at the nearest lower element). If omitted starts at the
                         a component."
-
+            - atom_density:
+                about: Get density of ACM atoms
+                args:
+                    - n:
+                        required: true
+                        help: Number of atoms to generate
+                    - s:
+                        help: "Number to begin at (if not an ACM element, starts
+                        at the nearest lower element). If omitted starts at the
+                        a component."

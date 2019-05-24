@@ -62,6 +62,18 @@ impl ArithmeticCongruenceMonoid {
         self.b
     }
 
+    /// Returns the nearst ACM element equal to or below `n`.
+    ///
+    /// # Examples
+    /// ```
+    /// let acm = acm::ArithmeticCongruenceMonoid::new(1, 4).unwrap();
+    /// assert_eq!(acm.element(5), 5);
+    /// assert_eq!(acm.element(6), 5);
+    /// ```
+    pub fn element(&self, n: u32) -> u32 {
+        n - (n - self.a) % self.b
+    }
+
     /// Generate `n` ACM elements starting at nearest element below or equal to `s`.
     ///
     /// # Examples
@@ -70,7 +82,7 @@ impl ArithmeticCongruenceMonoid {
     /// assert_eq!(acm.elements(5, 1), [1, 5, 9, 13, 17]);
     /// ```
     pub fn elements(&self, n: u32, s: u32) -> Vec<u32> {
-        let s = s - (s - self.a) % self.b;
+        let s = self.element(s);
         (0..n).map(|i| s + i * self.b).collect()
     }
 
@@ -191,11 +203,31 @@ impl ArithmeticCongruenceMonoid {
     /// [`atomic`]: ./struct.ArithmeticCongruenceMonoid.html#method.atomic
     /// [`atoms`]: ./struct.ArithmeticCongruenceMonoid.html#method.atoms
     pub fn atoms(&mut self, n: u32, s: u32) -> Vec<u32> {
-        let s = s - (s - self.a) % self.b;
+        let s = self.element(s);
         (s..)
             .step_by(self.b as usize)
             .filter(|x| self.atomic(*x))
             .take(n as usize)
             .collect()
+    }
+
+    /// Returns a vector of the density (distance between) the first `n` atoms of the ACM.
+    /// Because of underlying usage of [`atoms`], using [`atom_density`] requires that the ACM
+    /// binding be declared mutable.
+    ///
+    /// # Examples
+    /// ```
+    /// let mut acm = acm::ArithmeticCongruenceMonoid::new(1, 4).unwrap();
+    /// assert_eq!(acm.atom_density(10, acm.a()), [4, 4, 4, 4, 8, 4, 4, 4, 8]);
+    /// ```
+    /// [`atoms`]: ./struct.ArithmeticCongruenceMonoid.html#method.atoms
+    /// [`atom_density`]: ./struct.ArithmeticCongruenceMonoid.html#method.atom_density
+    pub fn atom_density(&mut self, n: u32, s: u32) -> Vec<u32> {
+        let s = self.element(s);
+        let atoms = self.atoms(n, s);
+        atoms.iter()
+            .zip(atoms.iter().skip(1))
+            .map(|(a1, a2)| a2 - a1)
+            .collect::<Vec<u32>>()
     }
 }
