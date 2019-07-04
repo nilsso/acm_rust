@@ -131,39 +131,39 @@ impl ArithmeticCongruenceMonoid {
     /// ```
     /// [`factorize`]: ./struct.ArithmeticCongruenceMonoid.html#methods.factorize
     pub fn factorize(&mut self, n: u32) -> &Vec<Vec<u32>> {
+        // TODO: Further optimize
         if self.factorizations.contains_key(&n) {
             return self.factorizations.get(&n).unwrap();
         }
 
         self.factorizations.insert(n, vec![]);
 
-        let factorization_is_empty =
-            |acm: &ACM, n: u32| acm.factorizations.get(&n).unwrap().is_empty();
-
-        let add_factorization = |acm: &mut ACM, n: u32, factorization: Vec<u32>| {
-            acm.factorizations.get_mut(&n).unwrap().push(factorization)
-        };
-
         if self.contains(n) {
-            let n_divisors = self.divisors(n);
-            for (d, q) in n_divisors
+            let n_ds = self.divisors(n);
+            for (d, q) in n_ds[1..n_ds.len()-1]
                 .iter()
-                .skip(1)
                 .map(|d| (*d, n / d))
-                .filter(|(_d, q)| n_divisors.contains(q))
+                // Considering squaring both sides (problem is with overflow)
+                .filter(|(d, q)| *d >= ((*q as f32).sqrt() as u32))
+                //.filter(|(d, q)| *d <= *q)
             {
-                if q == 1 && factorization_is_empty(self, n) {
-                    add_factorization(self, n, vec![n]);
-                } else if let Some(d_fs) = self.factorize(d).first() {
+                //println!("({}) d={} q={} A", n, d, q);
+                if let Some(d_fs) = self.factorize(d).first() {
+                    //println!("({}) d={} q={} B", n, d, q);
                     if d_fs.len() == 1 {
+                        //println!("({}) d={} q={} C", n, d, q);
                         for mut q_f in self.factorize(q).clone().into_iter() {
                             if q_f.is_empty() || &d >= q_f.last().unwrap() {
+                                //println!("({}) d={} q={} D", n, d, q);
                                 q_f.push(d);
-                                add_factorization(self, n, q_f);
+                                self.factorizations.get_mut(&n).unwrap().push(q_f);
                             }
                         }
                     }
                 }
+            }
+            if self.factorizations.get(&n).unwrap().is_empty() {
+                self.factorizations.get_mut(&n).unwrap().push(vec![n]);
             }
         }
         self.factorizations.get(&n).unwrap()

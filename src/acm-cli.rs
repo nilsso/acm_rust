@@ -8,6 +8,7 @@ use acm::ArithmeticCongruenceMonoid as ACM;
 extern crate clap;
 use clap::App;
 
+// TODO: Replace with `value_t!`
 fn parse_subcommand_arg(m: &clap::ArgMatches<'_>, arg: &str) -> u32 {
     m.value_of(arg).unwrap().parse().unwrap()
 }
