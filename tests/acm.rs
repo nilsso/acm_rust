@@ -3,7 +3,7 @@ extern crate acm;
 use acm::ArithmeticCongruenceMonoid as ACM;
 use std::panic;
 
-fn helper(a: u32, b: u32, n: u32, ans: Vec<Vec<u32>>) {
+fn helper(a: u64, b: u64, n: u64, ans: Vec<Vec<u64>>) {
     assert_eq!(ACM::new(a, b).unwrap().factorize(n).to_vec(), ans);
 }
 

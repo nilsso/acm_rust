@@ -27,34 +27,34 @@ subcommands:
                 required: true
                 help: b component of ACM
         subcommands:
-            - element:
-                about: Get nearest ACM element equal to or less than integer
+            - nearest:
+                about: Get nearest ACM element less-than or equal to integer
                 args:
                     - n:
                         required: true
                         help: Integer number to get nearest from
-            - elements:
-                about: Generate ACM elements
+            - nth_element:
+                about: Get nth ACM element
                 args:
                     - n:
                         required: true
-                        help: Integer number of elements to generate
+            - n_elements:
+                about: Get n ACM elements
+                args:
+                    - n:
+                        required: true
                     - s:
-                        help: "Number to begin at (if not an ACM element, starts
-                        at the nearest lower element). If omitted starts at the
-                        a component."
+                        help: "Number to begin at (starting at nearest ACM element). If omitted starts at the a component."
             - contains:
-                about: ACM contains integer
+                about: Get if ACM contains integer
                 args:
                     - n:
                         required: true
-                        help: Integer to check containment within ACM
             - divisors:
-                about: ACM element divisors of an integer
+                about: ACM element divisors of integer
                 args:
                     - n:
                         required: true
-                        help: Integer to get ACM divisors of
             - factorize:
                 about: ACM atom factorizations of an integer
                 args:
@@ -62,28 +62,25 @@ subcommands:
                         required: true
                         help: Integer to get ACM atom factorization of
             - atomic:
-                about: ACM contains integer as an atom
+                about: Get if integer is an atomic ACM element
                 args:
                     - n:
                         required: true
-                        help: Integer to check if atomic
-            - atoms:
-                about: Generate ACM atoms
+            - n_atoms:
+                about: Generate n ACM atomic elements
                 args:
                     - n:
                         required: true
-                        help: Number of atoms to generate
                     - s:
-                        help: "Number to begin at (if not an ACM element, starts
-                        at the nearest lower element). If omitted starts at the
-                        a component."
-            - atom_density:
+                        help: "Number to begin at (starting at nearest ACM element). If omitted starts at the a component."
+                    - print:
+                        long: "print"
+                        help: "Print results in the terminal."
+            - atomic_density:
                 about: Get density of ACM atoms
                 args:
                     - n:
+                        help: "Number of atomic ACM elements to calculate density for."
                         required: true
-                        help: Number of atoms to generate
                     - s:
-                        help: "Number to begin at (if not an ACM element, starts
-                        at the nearest lower element). If omitted starts at the
-                        a component."
+                        help: "Number to begin at (starting at nearest ACM element). If omitted starts at the a component."

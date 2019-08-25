@@ -19,9 +19,11 @@ name = "acm-cli"
 path = "src/acm-cli.rs"
 
 [dependencies]
-common_macros = "0.1.1"
-clap = { version = "2.33.0", features = ["yaml"] }
-failure = "0.1.5"
+common_macros = "0.1"
+clap = { version = "2.33", features = ["yaml"] }
+term_size = "0.3"
+failure = "0.1"
+plotlib = "0.4"
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "katex-header.html" ]

@@ -6,14 +6,14 @@ use crate::factorize;
 /// ```
 /// assert_eq!(acm::divisors(60), [1, 2, 4, 3, 6, 12, 5, 10, 20, 15, 30, 60]);
 /// ```
-pub fn divisors(n: u32) -> Vec<u32> {
-    let mut divisors = vec![1];
+pub fn divisors(n: u64) -> Vec<u64> {
+    let mut res = vec![1];
     for (factor, m) in factorize(n) {
-        for d in divisors.clone() {
+        for d in res.clone() {
             for p in 1..m + 1 {
-                divisors.push(d * factor.pow(p));
+                res.push(d * factor.pow(p as u32));
             }
         }
     }
-    divisors
+    res
 }
