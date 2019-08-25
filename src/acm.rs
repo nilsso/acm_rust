@@ -239,7 +239,7 @@ impl ArithmeticCongruenceMonoid {
     /// # Examples
     /// ```
     /// let mut acm = acm::ArithmeticCongruenceMonoid::new(1, 4).unwrap();
-    /// assert_eq!(acm.atom_density(10, acm.a()), [4, 4, 4, 4, 8, 4, 4, 4, 8]);
+    /// assert_eq!(acm.atomic_density(10, acm.a()), [4, 4, 4, 4, 8, 4, 4, 4, 8]);
     /// ```
     /// [`atoms`]: ./struct.ArithmeticCongruenceMonoid.html#method.atoms
     /// [`atom_density`]: ./struct.ArithmeticCongruenceMonoid.html#method.atom_density

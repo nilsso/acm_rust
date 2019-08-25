@@ -8,8 +8,8 @@ Implements [arithmetic congruence monoids][math-acm] (ACM) in Rust.
 
 [math-acm]: http://faculty.fairfield.edu/pbaginski/Papers/SubmittedACMSurvey%20RevisedReferee%2001.20.2013.pdf
 
-In a nutshell, an ACM is an arithmetic progression which possesses a multiplicative structure,
-and specifically is the monoid:
+In a nutshell, an ACM is an arithmetic progression which possesses a
+multiplicative structure, and specifically is the monoid:
 <center>
 <img src="img//2.png" height=24pt>
 </center>
@@ -26,8 +26,14 @@ elements *atoms*.
 
 Finally, the purpose of this library is to study the atomic density of different
 ACMs, that is, the distance between atoms. In certain ACMs the atomic density is
-provably constant throughout, but in others it is unknown, not dissimilar to the
+provably constant throughout, but in others it is unknown; not dissimilar to the
 density, or lack thereof, of prime integers in the set of all integers.
+
+This project started as [a C++ port][acm-cpp] of [acm-sage], but my interest in
+Rust led me to rewrite the project.
+
+[acm-cpp]: https://github.com/nilsso/acm-cpp
+[acm-sage]: https://github.com/coneill-math/acm-sage
 
 ## CLI
 First build:
@@ -39,6 +45,23 @@ module and the divisors/factorize submodules.
 ```
 > ./target/debug/acm-cli acm 3 6 factorize 225
 [[15, 15], [3, 75]]
+
+> ./target/debug/acm-cli acm 1 4 atomic_density 100
+16-|                                                                                           ●
+   |
+   |
+12-|                ●                ●  ●      ●        ●  ●              ●           ● ●                 ● ●         ●
+   |
+   |
+ 8-|   ●    ●   ●        ● ●●    ●●         ●       ●    ●   ●●   ● ● ● ●  ●●    ●           ●  ●  ●● ●●         ●
+   |
+   |
+ 4-|● ● ●●●  ●●●  ●● ●●●  ●  ● ●●  ●  ●● ● ● ●●  ●●● ● ●  ●    ●●●   ● ●     ●● ● ●●●  ● ●● ● ●   ●  ●   ● ● ● ●● ●● ● ●
+   |
+   |
+ 0+---------------------------------------------------------------------------------------------------------------------
+                         |                       |                      |                       |
+                        20                      40                     60                      80
 ```
 
 For full usage lists, try it, and any subcommand, with the `-h` flag:
