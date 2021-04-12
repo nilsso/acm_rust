@@ -1,30 +1,103 @@
-mod divisors;
-mod factorize;
+#![feature(trait_alias)]
+#![feature(step_trait)]
+pub mod divisors;
+pub mod factor;
+pub mod integers;
 
-// Provide submodule functions as crate functions
-pub use divisors::divisors;
-pub use factorize::factorize;
-
-use common_macros::hash_map;
-use failure::Fail;
+use std::cmp::{Eq, PartialOrd};
 use std::collections::HashMap;
+use std::convert::TryFrom;
+use std::fmt::{Debug, Display};
+use std::hash::Hash;
+use std::marker::{Send, Sync};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Sub, SubAssign};
+
+//use common_macros::hash_map;
+use failure::Fail;
+use num_traits::{One, Pow, Zero};
+
+use divisors::divisors;
+//use integers::GCD;
 
 /// Error to encapsulate invalid ACM construction parameters.
 #[derive(Fail, Debug)]
 #[fail(display = "{} incongruent to {} modulus {}.", _0, _1, _2)]
-pub struct ACMError(u64, u64, u64);
+pub struct ACMError<T: Display + Send + Sync + Debug + 'static>(T, T, T);
+
+pub struct ACMElementIterator<T> {
+    _a: T,
+    b: T,
+    n: T,
+}
+
+impl<T> ACMElementIterator<T> {
+    pub fn new(a: T, b: T, n: T) -> Self {
+        Self { _a: a, b, n }
+    }
+}
+
+impl<T> Iterator for ACMElementIterator<T>
+where
+    T: Clone,
+    for<'b> T: AddAssign<&'b T>,
+{
+    type Item = T;
+
+    fn next(&mut self) -> Option<T> {
+        let res = self.n.clone();
+        self.n += &self.b;
+        Some(res)
+    }
+}
+
+pub trait TBounds = Zero
+    + One
+    + AddAssign
+    + DivAssign
+    + Eq
+    + PartialOrd
+    + Clone
+    + Send
+    + Sync
+    + Hash
+    + Display
+    + Debug;
+
+pub trait Ops<A, B> = Add<A, Output = B>
+    + Sub<A, Output = B>
+    + Mul<A, Output = B>
+    + Div<A, Output = B>
+    + Rem<A, Output = B>
+    + Pow<usize, Output = B>;
+
+#[rustfmt::skip]
+pub trait AssignOps<B> = AddAssign<B>
+    + SubAssign<B>
+    + MulAssign<B>
+    + DivAssign<B>
+    + RemAssign<B>;
 
 /// Arithmetic congruence monoid implementation.
 #[derive(Debug)]
-pub struct ArithmeticCongruenceMonoid {
-    a: u64,
-    b: u64,
-    factorizations: HashMap<u64, Vec<Vec<u64>>>,
+pub struct ArithmeticCongruenceMonoid<T>
+where
+    T: TBounds + Ops<T, T>,
+    for<'a> &'a T: Ops<T, T>,
+    for<'b> T: Ops<&'b T, T> + AssignOps<&'b T>,
+    for<'a, 'b> &'a T: Ops<&'b T, T>,
+{
+    a: T,
+    b: T,
+    factorizations: HashMap<T, Vec<Vec<T>>>,
 }
 
-type ACM = ArithmeticCongruenceMonoid;
-
-impl ArithmeticCongruenceMonoid {
+impl<T> ArithmeticCongruenceMonoid<T>
+where
+    T: TBounds + Ops<T, T>,
+    for<'a> &'a T: Ops<T, T>,
+    for<'b> T: Ops<&'b T, T> + AssignOps<&'b T>,
+    for<'a, 'b> &'a T: Ops<&'b T, T>,
+{
     /// Construct a new ACM with components $a$ and $b$ satisfying $a\equiv a^2\pmod b$.
     ///
     /// # Examples
@@ -35,28 +108,41 @@ impl ArithmeticCongruenceMonoid {
     /// // An invalid ACM (2 % 4 == 2 != 0 == 2*2 % 4)
     /// assert!(acm::ArithmeticCongruenceMonoid::new(2, 4).is_err());
     /// ```
-    pub fn new(a: u64, b: u64) -> Result<ACM, ACMError> {
-        if a % b == a.pow(2) % b {
-            Ok(ACM {
-                a: a % b,
+    pub fn new(a: T, b: T) -> Result<ArithmeticCongruenceMonoid<T>, ACMError<T>> {
+        if (&a % &b) == (&a * &a) % &b {
+            let mut factorizations = HashMap::new();
+            factorizations.insert(T::one(), vec![vec![]]);
+            Ok(ArithmeticCongruenceMonoid {
+                a: (&a % &b),
                 b,
-                factorizations: hash_map! {
-                    1 => vec![vec![]]
-                },
+                factorizations,
             })
         } else {
-            Err(ACMError(a, a * a, b))
+            let c = &a * &a;
+            Err(ACMError(a, c, b))
         }
     }
 
     /// Returns the $a$ component of the ACM.
-    pub fn a(&self) -> u64 {
-        self.a
+    pub fn a(&self) -> &T {
+        &self.a
     }
 
     /// Returns the $b$ component of the ACM.
-    pub fn b(&self) -> u64 {
-        self.b
+    pub fn b(&self) -> &T {
+        &self.b
+    }
+
+    /// Returns `true` if `n` is an element of the ACM.
+    ///
+    /// # Examples
+    /// ```
+    /// let acm = acm::ArithmeticCongruenceMonoid::new(1, 4).unwrap();
+    /// assert!( acm.contains(&5));
+    /// assert!(!acm.contains(&6));
+    /// ```
+    pub fn contains(&self, x: &T) -> bool {
+        &(x % &self.b) == &self.a
     }
 
     /// Returns the nearst ACM element less-than or equal to $s$.
@@ -70,12 +156,23 @@ impl ArithmeticCongruenceMonoid {
     /// assert_eq!(acm.nearest(5), 5);
     /// assert_eq!(acm.nearest(6), 5);
     /// ```
-    pub fn nearest(&self, s: u64) -> u64 {
-        if s >= self.a {
-            s - (s - self.a) % self.b
+    pub fn nearest<U: Into<T>>(&self, s: U) -> T {
+        let s: T = s.into();
+        if &s >= &self.a {
+            let c = &s - &self.a;
+            s - c % &self.b
         } else {
-            self.a
+            self.a.clone()
         }
+    }
+
+    /// Returns an iterator over ACM elements.
+    pub fn iter(&self) -> ACMElementIterator<T> {
+        self.iter_from(self.a.clone())
+    }
+
+    pub fn iter_from(&self, s: T) -> ACMElementIterator<T> {
+        ACMElementIterator::new(self.a.clone(), self.b.clone(), self.nearest(s))
     }
 
     /// Returns the $n$th ACM element.
@@ -83,45 +180,21 @@ impl ArithmeticCongruenceMonoid {
     /// # Examples
     /// ```
     /// let acm = acm::ArithmeticCongruenceMonoid::new(1, 4).unwrap();
-    /// assert_eq!(acm.nth(1), 1);
-    /// assert_eq!(acm.nth(2), 5);
-    /// assert_eq!(acm.nth(57), 225);
+    /// assert_eq!(acm.ith(0), 1);
+    /// assert_eq!(acm.ith(1), 5);
+    /// assert_eq!(acm.ith(56), 225);
     /// ```
-    pub fn nth(&self, n: u64) -> u64 {
-        self.a + self.b * (n as u64 - 1)
+    pub fn ith<U: Into<T>>(&self, i: U) -> T {
+        &self.a + &self.b * i.into()
     }
 
     /// Get ACM element index of an integer.
-    pub fn index(&self, n: u64) -> Option<u64> {
-        if self.contains(n) {
-            Some(((n - self.a) / self.b + 1) as u64)
+    pub fn index(&self, n: T) -> Option<T> {
+        if self.contains(&n) {
+            Some((n - &self.a) / &self.b + T::one())
         } else {
             None
         }
-    }
-
-    /// Generate `n` ACM elements starting at nearest element less-than or equal to `s`.
-    ///
-    /// # Examples
-    /// ```
-    /// let acm = acm::ArithmeticCongruenceMonoid::new(1, 4).unwrap();
-    /// assert_eq!(acm.n_elements(5, 1), [1, 5, 9, 13, 17]);
-    /// ```
-    pub fn n_elements(&self, n: u64, s: u64) -> Vec<u64> {
-        let s = self.nearest(s);
-        (0..n).map(|i| s + i * self.b).collect()
-    }
-
-    /// Returns `true` if `n` is an element of the ACM.
-    ///
-    /// # Examples
-    /// ```
-    /// let acm = acm::ArithmeticCongruenceMonoid::new(1, 4).unwrap();
-    /// assert!( acm.contains(5));
-    /// assert!(!acm.contains(6));
-    /// ```
-    pub fn contains(&self, n: u64) -> bool {
-        n == 1 || n % self.b == self.a
     }
 
     /// Returns the ACM element divisors of an integer `n`.
@@ -131,52 +204,53 @@ impl ArithmeticCongruenceMonoid {
     /// let acm = acm::ArithmeticCongruenceMonoid::new(1, 4).unwrap();
     /// assert_eq!(acm.divisors(225), [1, 9, 5, 25, 45, 225]);
     /// ```
-    pub fn divisors(&self, n: u64) -> Vec<u64> {
-        let mut ds = vec![];
-        for d in divisors(n) {
-            if self.contains(d) {
-                ds.push(d);
-            }
-        }
-        ds
+    pub fn divisors(&self, n: T) -> Vec<T> {
+        divisors(n)
+            .into_iter()
+            .filter(|x| self.contains(x))
+            .collect()
     }
 
     /// Returns a reference to the vector of ACM atom factorizations of an integer `n`.
     /// If `n` is not an element of the ACM then the vector will be empty.
     /// Because factorization results are stored internally to the ACM in order to reduce
-    /// computational costs, using [`factorize`] requires that the ACM binding be declared mutable.
+    /// computational costs, using [`factor`] requires that the ACM binding be declared mutable.
     ///
     /// # Examples
     /// ```
     /// let mut acm = acm::ArithmeticCongruenceMonoid::new(3, 6).unwrap();
-    /// assert_eq!(acm.factorize(1),   &[[]]);
-    /// assert_eq!(acm.factorize(2),   &[[]; 0]);
-    /// assert_eq!(acm.factorize(3),   &[[3]]);
-    /// assert_eq!(acm.factorize(9),   &[[3, 3]]);
-    /// assert_eq!(acm.factorize(225), &[[15, 15], [3, 75]]);
+    /// assert_eq!(acm.factor(1),   &[[]]);
+    /// assert_eq!(acm.factor(2),   &[[]; 0]);
+    /// assert_eq!(acm.factor(3),   &[[3]]);
+    /// assert_eq!(acm.factor(9),   &[[3, 3]]);
+    /// assert_eq!(acm.factor(225), &[[15, 15], [3, 75]]);
     /// ```
-    /// [`factorize`]: ./struct.ArithmeticCongruenceMonoid.html#methods.factorize
-    pub fn factorize(&mut self, n: u64) -> &Vec<Vec<u64>> {
+    /// [`factor`]: ./struct.ArithmeticCongruenceMonoid.html#methods.factor
+    pub fn factor<U: Into<T>>(&mut self, n: U) -> &Vec<Vec<T>> {
+        let n: T = n.into();
+
         // TODO: Further optimize
         if self.factorizations.contains_key(&n) {
             return self.factorizations.get(&n).unwrap();
         }
 
-        self.factorizations.insert(n, vec![]);
+        self.factorizations.insert(n.clone(), vec![]);
 
-        if self.contains(n) {
-            let n_ds = self.divisors(n);
-            for (d, q) in n_ds[1..n_ds.len() - 1]
+        if self.contains(&n) {
+            let n_ds = self.divisors(n.clone());
+            for (d, q) in n_ds
                 .iter()
-                .map(|d| (*d, n / d))
+                .take(n_ds.len() - 1)
+                .map(|d| (d.clone(), &n / d))
                 // Considering squaring both sides (problem is with overflow)
-                .filter(|(d, q)| *d >= ((*q as f32).sqrt() as u64))
+                //.filter(|(d, q)| *d >= ((*q as f32).sqrt() as u64))
+                .filter(|(d, q)| &(d * d) >= q)
             {
-                if let Some(d_fs) = self.factorize(d).first() {
+                if let Some(d_fs) = self.factor(d.clone()).first() {
                     if d_fs.len() == 1 {
-                        for mut q_f in self.factorize(q).clone().into_iter() {
+                        for mut q_f in self.factor(q).clone().into_iter() {
                             if q_f.is_empty() || &d >= q_f.last().unwrap() {
-                                q_f.push(d);
+                                q_f.push(d.clone());
                                 self.factorizations.get_mut(&n).unwrap().push(q_f);
                             }
                         }
@@ -184,7 +258,10 @@ impl ArithmeticCongruenceMonoid {
                 }
             }
             if self.factorizations.get(&n).unwrap().is_empty() {
-                self.factorizations.get_mut(&n).unwrap().push(vec![n]);
+                self.factorizations
+                    .get_mut(&n)
+                    .unwrap()
+                    .push(vec![n.clone()]);
             }
         }
         self.factorizations.get(&n).unwrap()
@@ -192,63 +269,23 @@ impl ArithmeticCongruenceMonoid {
 
     /// Returns `true` if `n` is atomic under the ACM (is an ACM element, and cannot be expressed
     /// as a product of smaller ACM atoms).
-    /// Because of underlying usage of [`factorize`], using [`atomic`] requires that the ACM binding be
+    /// Because of underlying usage of [`factor`], using [`atomic`] requires that the ACM binding be
     /// declared mutable.
     ///
     /// # Examples
     /// ```
     /// let mut acm = acm::ArithmeticCongruenceMonoid::new(1, 4).unwrap();
-    /// assert!( acm.contains(5)  &&  acm.atomic(5));
-    /// assert!(!acm.contains(15) && !acm.atomic(15));
-    /// assert!( acm.contains(25) && !acm.atomic(25));
+    /// assert!( acm.contains(&5)  &&  acm.atomic(&5));
+    /// assert!(!acm.contains(&15) && !acm.atomic(&15));
+    /// assert!( acm.contains(&25) && !acm.atomic(&25));
     /// ```
-    /// [`factorize`]: ./struct.ArithmeticCongruenceMonoid.html#method.factorize
+    /// [`factor`]: ./struct.ArithmeticCongruenceMonoid.html#method.factor
     /// [`atomic`]: ./struct.ArithmeticCongruenceMonoid.html#method.atomic
-    pub fn atomic(&mut self, n: u64) -> bool {
-        if !self.contains(n) {
+    pub fn atomic(&mut self, n: &T) -> bool {
+        if !self.contains(&n) {
             return false;
         }
-        let n_fs = self.factorize(n);
-        n_fs.len() == 1 && n_fs.first().unwrap().len() == 1
-    }
-
-    /// Returns a vector of the first `n` atoms of the ACM.
-    /// Because of underlying usage of [`atomic`], using [`atoms`] requires that the ACM binding be
-    /// declared mutable.
-    ///
-    /// # Examples
-    /// ```
-    /// let mut acm = acm::ArithmeticCongruenceMonoid::new(3, 6).unwrap();
-    /// assert_eq!(acm.n_atoms(5, acm.a()), [3, 15, 21, 33, 39]);
-    /// ```
-    /// [`atomic`]: ./struct.ArithmeticCongruenceMonoid.html#method.atomic
-    /// [`atoms`]: ./struct.ArithmeticCongruenceMonoid.html#method.atoms
-    pub fn n_atoms(&mut self, n: u64, s: u64) -> Vec<u64> {
-        let s = self.nearest(s);
-        (s..)
-            .step_by(self.b as usize)
-            .filter(|x| self.atomic(*x))
-            .take(n as usize)
-            .collect()
-    }
-
-    /// Returns a vector of the density (distance between) the first `n` atoms of the ACM.
-    /// Because of underlying usage of [`atoms`], using [`atom_density`] requires that the ACM
-    /// binding be declared mutable.
-    ///
-    /// # Examples
-    /// ```
-    /// let mut acm = acm::ArithmeticCongruenceMonoid::new(1, 4).unwrap();
-    /// assert_eq!(acm.atomic_density(10, acm.a()), [4, 4, 4, 4, 8, 4, 4, 4, 8]);
-    /// ```
-    /// [`atoms`]: ./struct.ArithmeticCongruenceMonoid.html#method.atoms
-    /// [`atom_density`]: ./struct.ArithmeticCongruenceMonoid.html#method.atom_density
-    pub fn atomic_density(&mut self, n: u64, s: u64) -> Vec<u64> {
-        let atoms = self.n_atoms(n, s);
-        atoms
-            .iter()
-            .zip(atoms.iter().skip(1))
-            .map(|(a1, a2)| a2 - a1)
-            .collect::<Vec<u64>>()
+        let n_fs = self.factor(n.clone());
+        n_fs.len() == 1 && n_fs.first().unwrap().len() <= 1
     }
 }

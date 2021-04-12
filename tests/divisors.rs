@@ -1,10 +1,10 @@
 extern crate acm;
-use acm::divisors;
+use acm::divisors::divisors;
 
 fn helper(n: u64, ans: Vec<u64>) {
-    let mut divisors = divisors(n);
-    divisors.sort();
-    assert_eq!(divisors, ans);
+    let mut ds = divisors(n);
+    ds.sort();
+    assert_eq!(ds, ans);
 }
 
 #[test]

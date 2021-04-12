@@ -3,7 +3,7 @@ author: nilsso <nilso@enosis.net>
 settings:
     - SubcommandRequiredElseHelp
 subcommands:
-    - factorize:
+    - factor:
         about: Integer factorization subcommand
         args:
             - n:
@@ -55,7 +55,7 @@ subcommands:
                 args:
                     - n:
                         required: true
-            - factorize:
+            - factor:
                 about: ACM atom factorizations of an integer
                 args:
                     - n:
@@ -73,14 +73,15 @@ subcommands:
                         required: true
                     - s:
                         help: "Number to begin at (starting at nearest ACM element). If omitted starts at the a component."
-                    - print:
-                        long: "print"
-                        help: "Print results in the terminal."
-            - atomic_density:
-                about: Get density of ACM atoms
+            - n_reducibles:
+                abount: Generate n ACM non-atomic (reducible) elements
                 args:
                     - n:
-                        help: "Number of atomic ACM elements to calculate density for."
                         required: true
                     - s:
                         help: "Number to begin at (starting at nearest ACM element). If omitted starts at the a component."
+            - mod_classes:
+                about: Classify composites of modulus classes in Z_b as M_{a,b} elements
+                args:
+                    - n:
+                        required: true
