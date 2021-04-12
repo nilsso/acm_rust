@@ -6,7 +6,6 @@ pub mod integers;
 
 use std::cmp::{Eq, PartialOrd};
 use std::collections::HashMap;
-use std::convert::TryFrom;
 use std::fmt::{Debug, Display};
 use std::hash::Hash;
 use std::marker::{Send, Sync};

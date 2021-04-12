@@ -80,8 +80,8 @@ subcommands:
                         required: true
                     - s:
                         help: "Number to begin at (starting at nearest ACM element). If omitted starts at the a component."
-            - mod_classes:
-                about: Classify composites of modulus classes in Z_b as M_{a,b} elements
-                args:
-                    - n:
-                        required: true
+            #- mod_classes:
+                #about: Classify composites of modulus classes in Z_b as M_{a,b} elements
+                #args:
+                    #- n:
+                        #required: true

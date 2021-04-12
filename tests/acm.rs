@@ -1,6 +1,6 @@
 extern crate acm;
 
-use acm::{ACMError, ArithmeticCongruenceMonoid as ACM};
+use acm::ArithmeticCongruenceMonoid as ACM;
 
 fn helper(a: i32, b: i32, n: i32, ans: Vec<Vec<i32>>) {
     assert_eq!(ACM::<i32>::new(a, b).unwrap().factor(n), &ans);
