@@ -36,40 +36,20 @@ Rust led me to rewrite the project.
 [acm-sage]: https://github.com/coneill-math/acm-sage
 
 ## CLI
-First build:
-```
-cargo b
-```
-Provided is a CLI program `acm-cli` with subcommands to test the main ACM
-module and the divisors/factorize submodules.
-```
-> ./target/debug/acm-cli acm 3 6 factorize 225
-[[15, 15], [3, 75]]
 
-> ./target/debug/acm-cli acm 1 4 atomic_density 100
-16-|                                                                                           ●
-   |
-   |
-12-|                ●                ●  ●      ●        ●  ●              ●           ● ●                 ● ●         ●
-   |
-   |
- 8-|   ●    ●   ●        ● ●●    ●●         ●       ●    ●   ●●   ● ● ● ●  ●●    ●           ●  ●  ●● ●●         ●
-   |
-   |
- 4-|● ● ●●●  ●●●  ●● ●●●  ●  ● ●●  ●  ●● ● ● ●●  ●●● ● ●  ●    ●●●   ● ●     ●● ● ●●●  ● ●● ● ●   ●  ●   ● ● ● ●● ●● ● ●
-   |
-   |
- 0+---------------------------------------------------------------------------------------------------------------------
-                         |                       |                      |                       |
-                        20                      40                     60                      80
+Provided is an example CLI program `acm-cli` with subcommands to test the main ACM module and the
+divisors/factorize submodules.
+```
+> cargo r --example acm-cli factor 225
+(3,2),(5,2)
+
+> cargo r --example acm-cli acm 3 6 factor 225
+[15,15],[3, 75]
 ```
 
-For full usage lists, try it, and any subcommand, with the `-h` flag:
+For usages use the <kbd>-h</kbd> flag.
 ```
-> ./target/debug/acm-cli -h
-acm-cli 0.1
-nilsso <nilso@enosis.net>
-
+> cargo r --example acm-cli -h
 USAGE:
     acm-cli <SUBCOMMAND>
 
@@ -82,6 +62,19 @@ SUBCOMMANDS:
     divisors     Integer divisors subcommand
     factorize    Integer factorization subcommand
     help         Prints this message or the help of the given subcommand(s)
+
+> cargo r --example acm-cli acm factor -h
+ACM atom factorizations of an integer
+
+USAGE:
+    acm-cli acm <a> <b> factor <n>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <n>    Integer to factor
 ```
 
 ## Documentation
@@ -91,6 +84,8 @@ RUSTDOCFLAGS="--html-in-header katex-header.html" cargo doc --no-deps --open
 ```
 
 ## Tests
+
+To run all tests, including documentation tests:
 ```
 cargo t
 ```

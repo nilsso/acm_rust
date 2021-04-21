@@ -77,14 +77,50 @@ fn opt_arg(matches: &ArgMatches, arg: &'static str, default: u64) -> Result<u64,
     matches.value_of(arg).map_or(Ok(default), |arg| arg.parse())
 }
 
+macro_rules! print_min {
+    (@delim $fstr:expr, $fstr_:expr, $iter:expr, $($pattern:tt)*) => {
+        let mut i = $iter;
+        #[allow(unused_parens)]
+        if let Some(($($pattern)*)) = i.next() {
+            print!($fstr, $($pattern)*);
+            while let Some(($($pattern)*)) = i.next() {
+                print!($fstr_, $($pattern)*);
+            }
+        }
+    };
+    ($fstr:expr, $iter:expr, $($pattern:tt)*) => {
+        print_min!(@delim $fstr, concat!(",", $fstr), $iter, $($pattern)*);
+    };
+    ($iter:expr) => {
+        print_min!(@delim "{}", ",{}", $iter, a);
+    };
+}
+
+macro_rules! println_min {
+    ($fstr:expr, $iter:expr, $($pattern:tt)*) => {
+        print_min!($fstr, $iter, $($pattern)*);
+        println!();
+    };
+    ($iter:expr) => {
+        println_min!("{}", $iter, a);
+    };
+}
+
 fn cli() -> Result<(), Error> {
     let yaml = load_yaml!("acm-cli.yml");
     let matches = App::from_yaml(yaml).get_matches();
     let subcommand = matches.subcommand_name().unwrap();
     let matches = matches.subcommand_matches(subcommand).unwrap();
     match subcommand {
-        "factor" => println!("{:?}", factor(req_arg(&matches, "n")?)),
-        "divisors" => println!("{:?}", divisors(req_arg(&matches, "n")?)),
+        "factor" => {
+            let factors = factor(req_arg(&matches, "n")?);
+            println_min!("({},{})", factors.iter(), a, b);
+        }
+        "divisors" => {
+            //println!("{:?}", divisors(req_arg(&matches, "n")?));
+            let divisors = divisors(req_arg(&matches, "n")?);
+            println_min!(divisors.iter());
+        }
         "acm" => {
             let a = req_arg(&matches, "a")?;
             let b = req_arg(&matches, "b")?;
@@ -97,29 +133,40 @@ fn cli() -> Result<(), Error> {
                 "nearest" => println!("{}", acm.nearest(n)),
                 "nth" => println!("{}", acm.ith(n)),
                 "contains" => println!("{}", acm.contains(&n)),
-                "factor" => println!("{:?}", acm.factor(n)),
-                "divisors" => println!("{:?}", acm.divisors(n)),
+                "divisors" => {
+                    let divisors = acm.divisors(n);
+                    println_min!(divisors.iter());
+                }
+                "factor" => {
+                    let mut i = acm.factor(n).into_iter();
+                    if let Some(fs) = i.next() {
+                        print!("[");
+                        print_min!(fs.iter());
+                        print!("]");
+                        while let Some(fs) = i.next() {
+                            print!(",[");
+                            print_min!(fs.iter());
+                            print!("]");
+                        }
+                    }
+                    println!();
+                }
                 "atomic" => println!("{}", acm.atomic(&n)),
-                "n_elements" => println!(
-                    "{:?}",
-                    acm.iter()
-                        .take(opt_arg(&matches, "s", a)? as usize)
-                        .collect::<Vec<u64>>()
-                ),
-                "n_atoms" => println!(
-                    "{:?}",
-                    acm.iter()
-                        .filter(|x| acm.atomic(x))
-                        .take(opt_arg(&matches, "s", a)? as usize)
-                        .collect::<Vec<u64>>()
-                ),
-                "n_reducibles" => println!(
-                    "{:?}",
-                    acm.iter()
-                        .filter(|x| !acm.atomic(x))
-                        .take(opt_arg(&matches, "s", a)? as usize)
-                        .collect::<Vec<u64>>()
-                ),
+                "n_elements" => {
+                    let n = n as usize;
+                    let s = opt_arg(&matches, "s", a)?;
+                    println_min!(acm.iter_from(s).take(n));
+                }
+                "n_atoms" => {
+                    let n = n as usize;
+                    let s = opt_arg(&matches, "s", a)?;
+                    println_min!(acm.iter_from(s).filter(|x| acm.atomic(x)).take(n));
+                }
+                "n_reducibles" => {
+                    let n = n as usize;
+                    let s = opt_arg(&matches, "s", a)?;
+                    println_min!(acm.iter_from(s).filter(|x| !acm.atomic(x)).take(n));
+                }
                 /*
                  *                "mod_classes" => {
                  *                    //let mut mod_classes: Vec<ModClass> = acm

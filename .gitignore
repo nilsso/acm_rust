@@ -1,12 +1,13 @@
+.DS_Store
+.idea
+Cargo.lock
+/out
+/target
 *.tex
 *.log
 *.aux
 *.out
 *.pdf
-/target
 **/*.rs.bk
-Cargo.lock
 mod_class_combinations_data.txt
 query.py
-.DS_Store
-.idea

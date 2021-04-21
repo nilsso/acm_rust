@@ -33,53 +33,58 @@ subcommands:
                     - n:
                         required: true
                         help: Integer number to get nearest from
-            - nth_element:
+            - nth:
                 about: Get nth ACM element
                 args:
                     - n:
                         required: true
+            - contains:
+                about: Does ACM contains specified integer
+                args:
+                    - n:
+                        required: true
+                        help: Integer to check
+            - divisors:
+                about: ACM element divisors of integer
+                args:
+                    - n:
+                        required: true
+                        help: Integer to get divisors of
+            - factor:
+                about: ACM atom factorizations of an integer
+                args:
+                    - n:
+                        required: true
+                        help: Integer to factor
+            - atomic:
+                about: Is specified integer an atomic ACM element
+                args:
+                    - n:
+                        required: true
+                        help: Integer to check
             - n_elements:
                 about: Get n ACM elements
                 args:
                     - n:
                         required: true
                     - s:
-                        help: "Number to begin at (starting at nearest ACM element). If omitted starts at the a component."
-            - contains:
-                about: Get if ACM contains integer
-                args:
-                    - n:
-                        required: true
-            - divisors:
-                about: ACM element divisors of integer
-                args:
-                    - n:
-                        required: true
-            - factor:
-                about: ACM atom factorizations of an integer
-                args:
-                    - n:
-                        required: true
-                        help: Integer to get ACM atom factorization of
-            - atomic:
-                about: Get if integer is an atomic ACM element
-                args:
-                    - n:
-                        required: true
+                        help: Integer to start from (nearest element)
             - n_atoms:
                 about: Generate n ACM atomic elements
                 args:
                     - n:
                         required: true
+                        help: Number of atoms to report
                     - s:
-                        help: "Number to begin at (starting at nearest ACM element). If omitted starts at the a component."
+                        help: Integer to start from (nearest atom)
             - n_reducibles:
-                abount: Generate n ACM non-atomic (reducible) elements
+                about: Generate n ACM non-atomic (reducible) elements
                 args:
                     - n:
+                        help: Number of reducibles to report
                         required: true
                     - s:
-                        help: "Number to begin at (starting at nearest ACM element). If omitted starts at the a component."
+                        help: Integer to start from (nearest reducible)
             #- mod_classes:
                 #about: Classify composites of modulus classes in Z_b as M_{a,b} elements
                 #args:
