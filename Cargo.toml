@@ -13,6 +13,7 @@ license = "MIT"
 [lib]
 name = "acm"
 path = "src/acm.rs"
+doctest = false
 
 [dependencies]
 failure = "0.1"

@@ -4,7 +4,7 @@ pub mod divisors;
 pub mod factor;
 pub mod integers;
 
-use std::cmp::{Eq, PartialOrd};
+use std::cmp::{Eq, PartialOrd, Ord};
 use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 use std::hash::Hash;
@@ -55,6 +55,7 @@ pub trait TBounds = Zero
     + DivAssign
     + Eq
     + PartialOrd
+    + Ord
     + Clone
     + Send
     + Sync
@@ -87,7 +88,7 @@ where
 {
     a: T,
     b: T,
-    factorizations: HashMap<T, Vec<Vec<T>>>,
+    pub factorizations: HashMap<T, Vec<Vec<T>>>,
 }
 
 impl<T> ArithmeticCongruenceMonoid<T>
@@ -236,14 +237,17 @@ where
         self.factorizations.insert(n.clone(), vec![]);
 
         if self.contains(&n) {
-            let n_ds = self.divisors(n.clone());
+            let mut n_ds = self.divisors(n.clone());
+            n_ds.sort();
+            // println!("{} {:#?}", n, n_ds);
             for (d, q) in n_ds
                 .iter()
                 .take(n_ds.len() - 1)
                 .map(|d| (d.clone(), &n / d))
                 // Considering squaring both sides (problem is with overflow)
+                // ERROR: Filtering seems to miss powers of a
                 //.filter(|(d, q)| *d >= ((*q as f32).sqrt() as u64))
-                .filter(|(d, q)| &(d * d) >= q)
+                // .filter(|(d, q)| &(d * d) >= q)
             {
                 if let Some(d_fs) = self.factor(d.clone()).first() {
                     if d_fs.len() == 1 {
@@ -288,3 +292,17 @@ where
         n_fs.len() == 1 && n_fs.first().unwrap().len() <= 1
     }
 }
+
+// 6:
+// (3^4)
+//
+// (2 * 3)
+// (3 * 7)
+// (3^4 * 11)
+// (3, 13^3)
+//
+// 1:
+// (2^4)
+// (7^4)
+// (2^2 * 7*2)
+// (

@@ -39,3 +39,6 @@ fn acm_1_4_factor_25() {
 fn acm_1_4_factor_125() {
     helper(1, 4, 125, vec![vec![5, 5, 5]])
 }
+
+#[test]
+fn acm_6_10_factor_1296() { helper(6, 10, 2_i32.pow(4) * 3_i32.pow(4), vec![vec![6, 6, 6, 6]])}
