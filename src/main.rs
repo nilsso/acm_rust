@@ -1,18 +1,33 @@
-use acm::{factor::factor, ArithmeticCongruenceMonoid as ACM};
+#![feature(bool_to_option, step_trait)]
+#![allow(unused_imports)]
+use acm::{integers::GCD, ArithmeticCongruenceMonoid as ACM};
+
+//use itertools::iproduct;
+use itertools::Itertools;
+
+use std::iter::repeat;
+
+fn mod_classes(a: i32, b: i32) -> Vec<i32> {
+    (2..b)
+        .filter(|&i| i.gcd(b) == 1 || i != a && a % i == 0)
+        .collect()
+}
 
 fn main() {
-    let mut acm = ACM::new(6, 10).unwrap();
+    let a = 6;
+    let b = 10;
+    let m = 4;
 
-    let f = |a: u32, b, c, d, e|-> i32 {
-        (2_i32.pow(a) * 3_i32.pow(b) * 7_i32.pow(c)) * (3_i32 * 7_i32).pow(d) * (3_i32.pow(4)).pow(e)
-    };
+    let mut acm = ACM::new(a, b).unwrap();
+    let ps = mod_classes(a, b);
 
-    let n = f(4, 0, 0, 0, 1);
-
-    acm.factor(n);
-
-    // println!("{}", n);
-    // println!("{:?}", factor(n));
-    println!("{:?}", acm.factor(n));
-    // println!("{:#?}", acm.factorizations);
+    println!("n,atomic,{}", ps.iter().map(|p| p.to_string()).join(","));
+    for es in (0..ps.len()).map(|_| 0..m).multi_cartesian_product() {
+        let n: i32 = ps.iter().zip(es.iter()).map(|(p, e)| p.pow(*e)).product();
+        let atomic = acm.atomic(&n);
+        let e_string = es.into_iter().map(|e| e.to_string()).join(",");
+        if acm.contains(&n) {
+            println!("{},{},{}", n, atomic, e_string);
+        }
+    }
 }

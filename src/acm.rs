@@ -1,10 +1,11 @@
-#![feature(trait_alias)]
+#![feature(bool_to_option, trait_alias)]
 #![feature(step_trait)]
 pub mod divisors;
 pub mod factor;
 pub mod integers;
+pub mod sieve;
 
-use std::cmp::{Eq, PartialOrd, Ord};
+use std::cmp::{Eq, Ord, PartialOrd};
 use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 use std::hash::Hash;
@@ -244,10 +245,10 @@ where
                 .iter()
                 .take(n_ds.len() - 1)
                 .map(|d| (d.clone(), &n / d))
-                // Considering squaring both sides (problem is with overflow)
-                // ERROR: Filtering seems to miss powers of a
-                //.filter(|(d, q)| *d >= ((*q as f32).sqrt() as u64))
-                // .filter(|(d, q)| &(d * d) >= q)
+            // Considering squaring both sides (problem is with overflow)
+            // ERROR: Filtering seems to miss powers of a
+            //.filter(|(d, q)| *d >= ((*q as f32).sqrt() as u64))
+            // .filter(|(d, q)| &(d * d) >= q)
             {
                 if let Some(d_fs) = self.factor(d.clone()).first() {
                     if d_fs.len() == 1 {
