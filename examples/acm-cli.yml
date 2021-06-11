@@ -85,8 +85,30 @@ subcommands:
                         required: true
                     - s:
                         help: Integer to start from (nearest reducible)
-            #- mod_classes:
-                #about: Classify composites of modulus classes in Z_b as M_{a,b} elements
-                #args:
-                    #- n:
-                        #required: true
+            - mod_classes:
+            - survey:
+                about: Generate CSV data for elements of the ACM constructed as powers of primes
+                       (rather the first prime) equivalent to the mod classes of the ACM.
+                args:
+                    - max_power:
+                        required: true
+                        value_name: m
+                        help: Maximum power for any particular prime
+                    - max_power_sum:
+                        required: true
+                        value_name: M
+                        help: Maximum sum of the prime powers
+                    - mod_classes:
+                        multiple: true
+                        help: List of mod classes (numbers modulo b) to restrict to.
+                              Any not in the list of mod classes for the ACM are ignored
+            - survey_all:
+                args:
+                    - max_power:
+                        required: true
+                        value_name: m
+                    - max_power_sum:
+                        required: true
+                        value_name: M
+                    - out_dir:
+                        required: true

@@ -1,9 +1,8 @@
 #![feature(bool_to_option, trait_alias)]
-#![feature(step_trait)]
 pub mod divisors;
 pub mod factor;
 pub mod integers;
-pub mod sieve;
+//pub mod sieve;
 
 use std::cmp::{Eq, Ord, PartialOrd};
 use std::collections::HashMap;
@@ -17,12 +16,12 @@ use failure::Fail;
 use num_traits::{One, Pow, Zero};
 
 use divisors::divisors;
-//use integers::GCD;
+use integers::{ModClass, GCD};
 
 /// Error to encapsulate invalid ACM construction parameters.
 #[derive(Fail, Debug)]
 #[fail(display = "{} incongruent to {} modulus {}.", _0, _1, _2)]
-pub struct ACMError<T: Display + Send + Sync + Debug + 'static>(T, T, T);
+pub struct ACMError(u32, u32, u32);
 
 pub struct ACMElementIterator<T> {
     _a: T,
@@ -89,12 +88,13 @@ where
 {
     a: T,
     b: T,
-    pub factorizations: HashMap<T, Vec<Vec<T>>>,
+    factorizations: HashMap<T, Vec<Vec<T>>>,
+    mod_classes: Vec<ModClass>,
 }
 
 impl<T> ArithmeticCongruenceMonoid<T>
 where
-    T: TBounds + Ops<T, T>,
+    T: TBounds + Ops<T, T> + From<u32>,
     for<'a> &'a T: Ops<T, T>,
     for<'b> T: Ops<&'b T, T> + AssignOps<&'b T>,
     for<'a, 'b> &'a T: Ops<&'b T, T>,
@@ -104,19 +104,26 @@ where
     /// # Examples
     /// ```
     /// // A valid ACM (1 % 4 == 1 == 1*1 % 4)
-    /// assert!(acm::ArithmeticCongruenceMonoid::new(1, 4).is_ok());
+    /// assert!(acm::ArithmeticCongruenceMonoid::<u32>::new(1, 4).is_ok());
     ///
     /// // An invalid ACM (2 % 4 == 2 != 0 == 2*2 % 4)
-    /// assert!(acm::ArithmeticCongruenceMonoid::new(2, 4).is_err());
+    /// assert!(acm::ArithmeticCongruenceMonoid::<u32>::new(2, 4).is_err());
     /// ```
-    pub fn new(a: T, b: T) -> Result<ArithmeticCongruenceMonoid<T>, ACMError<T>> {
-        if (&a % &b) == (&a * &a) % &b {
+    pub fn new(a: u32, b: u32) -> Result<ArithmeticCongruenceMonoid<T>, ACMError> {
+        if (a * a) % b == a % b {
             let mut factorizations = HashMap::new();
             factorizations.insert(T::one(), vec![vec![]]);
+            let mod_classes = (1..b)
+                .filter_map(|i| {
+                    ((i as i32).gcd(b as i32) == 1 || i < a && a % i == 0)
+                        .then_some(ModClass::new(i, b))
+                })
+                .collect();
             Ok(ArithmeticCongruenceMonoid {
-                a: (&a % &b),
-                b,
+                a: T::from(a % b),
+                b: T::from(b),
                 factorizations,
+                mod_classes,
             })
         } else {
             let c = &a * &a;
@@ -134,13 +141,18 @@ where
         &self.b
     }
 
+    /// Returns the prime factor congruency classes for elements of the ACM.
+    pub fn mod_classes(&self) -> &Vec<ModClass> {
+        &self.mod_classes
+    }
+
     /// Returns `true` if `n` is an element of the ACM.
     ///
     /// # Examples
     /// ```
     /// let acm = acm::ArithmeticCongruenceMonoid::new(1, 4).unwrap();
-    /// assert!( acm.contains(&5));
-    /// assert!(!acm.contains(&6));
+    /// assert!( acm.contains(&5_u32));
+    /// assert!(!acm.contains(&6_u32));
     /// ```
     pub fn contains(&self, x: &T) -> bool {
         &(x % &self.b) == &self.a
@@ -151,11 +163,11 @@ where
     ///
     /// # Examples
     /// ```
-    /// let acm = acm::ArithmeticCongruenceMonoid::new(1, 4).unwrap();
-    /// assert_eq!(acm.nearest(0), 1);
-    /// assert_eq!(acm.nearest(1), 1);
-    /// assert_eq!(acm.nearest(5), 5);
-    /// assert_eq!(acm.nearest(6), 5);
+    /// let acm = acm::ArithmeticCongruenceMonoid::<u32>::new(1, 4).unwrap();
+    /// assert_eq!(acm.nearest(0_u32), 1);
+    /// assert_eq!(acm.nearest(1_u32), 1);
+    /// assert_eq!(acm.nearest(5_u32), 5);
+    /// assert_eq!(acm.nearest(6_u32), 5);
     /// ```
     pub fn nearest<U: Into<T>>(&self, s: U) -> T {
         let s: T = s.into();
@@ -180,10 +192,10 @@ where
     ///
     /// # Examples
     /// ```
-    /// let acm = acm::ArithmeticCongruenceMonoid::new(1, 4).unwrap();
-    /// assert_eq!(acm.ith(0), 1);
-    /// assert_eq!(acm.ith(1), 5);
-    /// assert_eq!(acm.ith(56), 225);
+    /// let acm = acm::ArithmeticCongruenceMonoid::<u32>::new(1, 4).unwrap();
+    /// assert_eq!(acm.ith(0_u32), 1);
+    /// assert_eq!(acm.ith(1_u32), 5);
+    /// assert_eq!(acm.ith(56_u32), 225);
     /// ```
     pub fn ith<U: Into<T>>(&self, i: U) -> T {
         &self.a + &self.b * i.into()
@@ -202,7 +214,7 @@ where
     ///
     /// # Examples
     /// ```
-    /// let acm = acm::ArithmeticCongruenceMonoid::new(1, 4).unwrap();
+    /// let acm = acm::ArithmeticCongruenceMonoid::<u32>::new(1, 4).unwrap();
     /// assert_eq!(acm.divisors(225), [1, 9, 5, 25, 45, 225]);
     /// ```
     pub fn divisors(&self, n: T) -> Vec<T> {
@@ -219,12 +231,12 @@ where
     ///
     /// # Examples
     /// ```
-    /// let mut acm = acm::ArithmeticCongruenceMonoid::new(3, 6).unwrap();
-    /// assert_eq!(acm.factor(1),   &[[]]);
-    /// assert_eq!(acm.factor(2),   &[[]; 0]);
-    /// assert_eq!(acm.factor(3),   &[[3]]);
-    /// assert_eq!(acm.factor(9),   &[[3, 3]]);
-    /// assert_eq!(acm.factor(225), &[[15, 15], [3, 75]]);
+    /// let mut acm = acm::ArithmeticCongruenceMonoid::<u32>::new(3, 6).unwrap();
+    /// assert_eq!(acm.factor(1_u32),   &[[]]);
+    /// assert_eq!(acm.factor(2_u32),   &[[]; 0]);
+    /// assert_eq!(acm.factor(3_u32),   &[[3]]);
+    /// assert_eq!(acm.factor(9_u32),   &[[3, 3]]);
+    /// assert_eq!(acm.factor(225_u32), &[[15, 15], [3, 75]]);
     /// ```
     /// [`factor`]: ./struct.ArithmeticCongruenceMonoid.html#methods.factor
     pub fn factor<U: Into<T>>(&mut self, n: U) -> &Vec<Vec<T>> {
@@ -278,7 +290,7 @@ where
     ///
     /// # Examples
     /// ```
-    /// let mut acm = acm::ArithmeticCongruenceMonoid::new(1, 4).unwrap();
+    /// let mut acm = acm::ArithmeticCongruenceMonoid::<u32>::new(1, 4).unwrap();
     /// assert!( acm.contains(&5)  &&  acm.atomic(&5));
     /// assert!(!acm.contains(&15) && !acm.atomic(&15));
     /// assert!( acm.contains(&25) && !acm.atomic(&25));
@@ -293,17 +305,3 @@ where
         n_fs.len() == 1 && n_fs.first().unwrap().len() <= 1
     }
 }
-
-// 6:
-// (3^4)
-//
-// (2 * 3)
-// (3 * 7)
-// (3^4 * 11)
-// (3, 13^3)
-//
-// 1:
-// (2^4)
-// (7^4)
-// (2^2 * 7*2)
-// (

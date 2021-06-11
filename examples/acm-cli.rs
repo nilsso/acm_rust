@@ -1,111 +1,28 @@
-#![feature(stmt_expr_attributes)]
+#![feature(stmt_expr_attributes, int_error_matching)]
+use std::num::ParseIntError;
+
 use clap::{load_yaml, App, ArgMatches};
 use failure::Error;
-
-use std::num::ParseIntError;
-//use std::{fmt, fmt::Display};
+use itertools::{join, Itertools};
+use num_bigint::BigInt;
 
 use acm::divisors::divisors;
 use acm::factor::factor;
-use acm::ArithmeticCongruenceMonoid as ACM;
+use acm::integers::ModClass;
 
-/*
- *fn is_prime(n: u64) -> bool {
- *    if n == 1 {
- *        return false;
- *    }
- *    for i in 2..=(n as f32).sqrt().round() as u64 {
- *        if n % i == 0 {
- *            return false;
- *        }
- *    }
- *    true
- *}
- */
+type ACM = acm::ArithmeticCongruenceMonoid<BigInt>;
 
-/*
- *fn first_prime(a: u64, b: u64) -> u64 {
- *    let mut n = a;
- *    loop {
- *        if is_prime(n) {
- *            return n;
- *        }
- *        n += b;
- *    }
- *}
- */
-
-/*
- *#[derive(Debug)]
- *struct ModClass {
- *    base: u64,
- *    modulo: u64,
- *    first_prime: u64,
- *}
- */
-
-/*
- *impl ModClass {
- *    pub fn new(base: u64, modulo: u64) -> Self {
- *        Self {
- *            base,
- *            modulo,
- *            first_prime: first_prime(base, modulo),
- *        }
- *    }
- *}
- */
-
-/*
- *impl Display for ModClass {
- *    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
- *        write!(fmt, "[{}]", self.base)
- *        //if self.base == self.first_prime {
- *        //write!(fmt, "[{}]", self.base)
- *        //} else {
- *        //write!(fmt, "[{}≡{}]", self.base, self.first_prime)
- *        //}
- *    }
- *}
- */
-
-fn req_arg(matches: &ArgMatches, arg: &'static str) -> Result<u64, ParseIntError> {
+// Helper for loading a required clap (CLI) argument
+fn req_arg(matches: &ArgMatches, arg: &'static str) -> Result<u32, ParseIntError> {
     matches.value_of(arg).unwrap().parse()
 }
 
-fn opt_arg(matches: &ArgMatches, arg: &'static str, default: u64) -> Result<u64, ParseIntError> {
+// Helper for loading an optional clap (CLI) argument
+fn opt_arg(matches: &ArgMatches, arg: &'static str, default: u32) -> Result<u32, ParseIntError> {
     matches.value_of(arg).map_or(Ok(default), |arg| arg.parse())
 }
 
-macro_rules! print_min {
-    (@delim $fstr:expr, $fstr_:expr, $iter:expr, $($pattern:tt)*) => {
-        let mut i = $iter;
-        #[allow(unused_parens)]
-        if let Some(($($pattern)*)) = i.next() {
-            print!($fstr, $($pattern)*);
-            while let Some(($($pattern)*)) = i.next() {
-                print!($fstr_, $($pattern)*);
-            }
-        }
-    };
-    ($fstr:expr, $iter:expr, $($pattern:tt)*) => {
-        print_min!(@delim $fstr, concat!(",", $fstr), $iter, $($pattern)*);
-    };
-    ($iter:expr) => {
-        print_min!(@delim "{}", ",{}", $iter, a);
-    };
-}
-
-macro_rules! println_min {
-    ($fstr:expr, $iter:expr, $($pattern:tt)*) => {
-        print_min!($fstr, $iter, $($pattern)*);
-        println!();
-    };
-    ($iter:expr) => {
-        println_min!("{}", $iter, a);
-    };
-}
-
+// TODO: Fix error Result handling, types and messages.
 fn cli() -> Result<(), Error> {
     let yaml = load_yaml!("acm-cli.yml");
     let matches = App::from_yaml(yaml).get_matches();
@@ -114,130 +31,124 @@ fn cli() -> Result<(), Error> {
     match subcommand {
         "factor" => {
             let factors = factor(req_arg(&matches, "n")?);
-            println_min!("({},{})", factors.iter(), a, b);
+            println!(
+                "{}",
+                join(factors.iter().map(|(p, e)| format!("({},{})", p, e)), ",")
+            );
         }
         "divisors" => {
-            //println!("{:?}", divisors(req_arg(&matches, "n")?));
             let divisors = divisors(req_arg(&matches, "n")?);
-            println_min!(divisors.iter());
+            println!("{}", join(divisors.iter(), ","));
         }
         "acm" => {
-            let a = req_arg(&matches, "a")?;
-            let b = req_arg(&matches, "b")?;
-            let mut acm: ACM<u64> = ACM::new(a, b)?;
+            let a: u32 = req_arg(&matches, "a")?;
+            let b: u32 = req_arg(&matches, "b")?;
+
+            let mut acm: ACM = ACM::new(a, b).expect("");
 
             let subcommand = matches.subcommand_name().unwrap();
             let matches = matches.subcommand_matches(subcommand).unwrap();
-            let n = req_arg(&matches, "n")?;
+
+            let get_n = || req_arg(&matches, "n");
+
             match subcommand {
-                "nearest" => println!("{}", acm.nearest(n)),
-                "nth" => println!("{}", acm.ith(n)),
-                "contains" => println!("{}", acm.contains(&n)),
+                "nearest" => {
+                    let n = BigInt::from(get_n()?);
+                    println!("{}", acm.nearest(n));
+                }
+                "nth" => {
+                    let n = BigInt::from(get_n()?);
+                    println!("{}", acm.ith(n));
+                }
+                "contains" => {
+                    let n = BigInt::from(get_n()?);
+                    println!("{}", acm.contains(&n));
+                }
                 "divisors" => {
+                    let n = BigInt::from(get_n()?);
                     let divisors = acm.divisors(n);
-                    println_min!(divisors.iter());
+                    println!("{}", join(divisors.iter(), ","));
                 }
                 "factor" => {
-                    let mut i = acm.factor(n).into_iter();
-                    if let Some(fs) = i.next() {
-                        print!("[");
-                        print_min!(fs.iter());
-                        print!("]");
-                        while let Some(fs) = i.next() {
-                            print!(",[");
-                            print_min!(fs.iter());
-                            print!("]");
-                        }
-                    }
-                    println!();
+                    let n = get_n()?;
+                    let factorizations = acm.factor(n);
+                    println!(
+                        "[{}]",
+                        join(
+                            factorizations
+                                .iter()
+                                .map(|fs| format!("[{}]", join(fs.iter(), ","))),
+                            ","
+                        )
+                    );
                 }
-                "atomic" => println!("{}", acm.atomic(&n)),
+                "atomic" => {
+                    let n = BigInt::from(get_n()?);
+                    println!("{}", acm.atomic(&n));
+                }
                 "n_elements" => {
-                    let n = n as usize;
-                    let s = opt_arg(&matches, "s", a)?;
-                    println_min!(acm.iter_from(s).take(n));
+                    let n = get_n()?;
+                    let s = BigInt::from(opt_arg(&matches, "s", a)?);
+                    println!("{}", join(acm.iter_from(s).take(n as usize), ","));
                 }
                 "n_atoms" => {
-                    let n = n as usize;
-                    let s = opt_arg(&matches, "s", a)?;
-                    println_min!(acm.iter_from(s).filter(|x| acm.atomic(x)).take(n));
+                    let n = get_n()?;
+                    let s = BigInt::from(opt_arg(&matches, "s", a)?);
+                    println!(
+                        "{}",
+                        join(
+                            acm.iter_from(s).filter(|x| acm.atomic(x)).take(n as usize),
+                            ","
+                        )
+                    );
                 }
                 "n_reducibles" => {
-                    let n = n as usize;
-                    let s = opt_arg(&matches, "s", a)?;
-                    println_min!(acm.iter_from(s).filter(|x| !acm.atomic(x)).take(n));
+                    let n = get_n()?;
+                    let s = BigInt::from(opt_arg(&matches, "s", a)?);
+                    println!(
+                        "{}",
+                        join(
+                            acm.iter_from(s).filter(|x| !acm.atomic(x)).take(n as usize),
+                            ","
+                        )
+                    );
                 }
-                /*
-                 *                "mod_classes" => {
-                 *                    //let mut mod_classes: Vec<ModClass> = acm
-                 *                    let mod_classes: Vec<ModClass> = acm
-                 *                        .prime_factor_mod_bases()
-                 *                        .into_iter()
-                 *                        .map(|base| ModClass::new(base, acm.b().clone()))
-                 *                        .collect();
-                 *
-                 *                    //mod_classes[0].first_prime = 61;
-                 *
-                 *                    let mut combinations: Vec<Vec<&ModClass>> = Vec::new();
-                 *
-                 *                    fn helper<'a>(
-                 *                        mod_classes: &'a Vec<ModClass>,
-                 *                        combinations: &mut Vec<Vec<&'a ModClass>>,
-                 *                        curr: Vec<&'a ModClass>,
-                 *                        length: usize,
-                 *                        max_length: usize,
-                 *                        i: usize,
-                 *                    ) {
-                 *                        combinations.push(curr.clone());
-                 *                        if length < max_length {
-                 *                            for (i, mc) in mod_classes
-                 *                                .iter()
-                 *                                .filter(|mc| mc.base > 1)
-                 *                                .enumerate()
-                 *                                .skip(i)
-                 *                            {
-                 *                                let mut next = curr.clone();
-                 *                                next.push(mc);
-                 *                                helper(mod_classes, combinations, next, length + 1, max_length, i);
-                 *                            }
-                 *                        }
-                 *                    };
-                 *
-                 *                    for (i, mc) in mod_classes.iter().enumerate() {
-                 *                        helper(&mod_classes, &mut combinations, vec![mc], 1, n as usize, i);
-                 *                    }
-                 *
-                 *                    use std::collections::BTreeMap;
-                 *
-                 *                    let counter: BTreeMap<u64, usize> =
-                 *                        mod_classes.iter().map(|mc| (mc.base, 0)).collect();
-                 *
-                 *                    println!(
-                 *                        "n,atomic,{}",
-                 *                        mod_classes
-                 *                            .iter()
-                 *                            .map(|a| format!("{}", a.base))
-                 *                            .collect::<Vec<String>>()
-                 *                            .join(",")
-                 *                    );
-                 *
-                 *                    for combination in combinations {
-                 *                        let n: u64 = combination.iter().map(|mc| mc.base).product();
-                 *                        let mut counter = counter.clone();
-                 *                        for mc in combination {
-                 *                            *counter.get_mut(&mc.base).unwrap() += 1;
-                 *                        }
-                 *                        let s = counter
-                 *                            .into_iter()
-                 *                            .map(|(_, b)| format!("{}", b))
-                 *                            .collect::<Vec<String>>()
-                 *                            .join(",");
-                 *                        if acm.contains(&n) {
-                 *                            println!("{},{},{:8}", n, acm.atomic(&n), s);
-                 *                        }
-                 *                    }
-                 *                }
-                 */
+                "mod_classes" => {
+                    for mod_class in filter_mod_classes(&acm, matches)? {
+                        println!("{:?}", mod_class);
+                    }
+                }
+                "survey" => {
+                    let max_power = req_arg(&matches, "max_power")?;
+                    let max_power_sum = req_arg(&matches, "max_power_sum")?;
+                    let mod_classes = filter_mod_classes(&acm, matches)?;
+                    survey(&mut acm, max_power, max_power_sum, &mod_classes)?;
+                }
+                "survey_all" => {
+                    // TODO:
+                    // This is a heavy stand-in for surveying the ways in which to construct
+                    // a and to construct 1 from combinations of the mod classes.
+                    use std::fs::{create_dir_all, OpenOptions};
+                    use std::path::Path;
+
+                    let max_power = req_arg(&matches, "max_power")?;
+                    let max_power_sum = req_arg(&matches, "max_power_sum")?;
+                    let out_path = Path::new(matches.value_of("out_dir").unwrap());
+                    create_dir_all(out_path)?;
+                    let mod_classes = acm.mod_classes().clone();
+                    for i in 1..mod_classes.len() {
+                        for mcs in mod_classes.iter().copied().combinations(i) {
+                            let file_name =
+                                format!("{}.csv", join(mcs.iter().map(|mc| mc.a()), "-"));
+                            let file_path = out_path.join(Path::new(&file_name));
+                            let mut file = OpenOptions::new()
+                                .write(true)
+                                .create(true)
+                                .open(file_path)?;
+                            survey_to(&mut file, &mut acm, max_power, max_power_sum, &mcs)?;
+                        }
+                    }
+                }
                 _ => unreachable!(),
             }
         }
@@ -250,4 +161,84 @@ fn main() {
     if let Err(err) = cli() {
         println!("Error: {:?}", err);
     }
+}
+
+// Helper for filtering the mod classes of an ACM via Clap argument matches
+fn filter_mod_classes(acm: &ACM, matches: &clap::ArgMatches) -> Result<Vec<ModClass>, Error> {
+    if let Some(mod_class_strings) = matches.values_of("mod_classes") {
+        // If mod_classes specified,
+        // filter the ACM mod classes over those specified
+        let mod_classes: Result<Vec<u32>, ParseIntError> = mod_class_strings
+            .into_iter()
+            .map(str::parse::<u32>)
+            .collect();
+        let mod_classes: Vec<u32> = mod_classes?;
+        Ok(acm
+            .mod_classes()
+            .iter()
+            .filter(|mc| mod_classes.contains(&mc.a()))
+            .copied()
+            .collect())
+    } else {
+        // Otherwise just use the ACM mod classes
+        Ok(acm.mod_classes().clone())
+    }
+}
+
+// Helper for surveying ACM mod class combinations
+fn survey_to<T: std::io::Write>(
+    os: &mut T,
+    acm: &mut ACM,
+    max_power: u32,
+    max_power_sum: u32,
+    _mod_classes: &Vec<ModClass>,
+) -> Result<(), Error> {
+    // TODO: This is stuck in an infinite somewhere, for ACMs like M_{13,26}
+    // let ps = (2..acm.b()).map(|x| BigInt::from(x)).collect();
+    let mut ps = vec![];
+    let mut i = BigInt::from(2);
+    while &i < acm.b() {
+        ps.push(i.clone());
+        i += 1;
+    }
+    let mod_classes = ps.clone();
+    // let ps = mod_classes
+    //     .iter()
+    //     .map(|mc| BigInt::from(mc.first_prime().unwrap()))
+    //     .collect::<Vec<BigInt>>();
+    writeln!(
+        os,
+        "n,atomic,{}",
+        // join(mod_classes.iter().map(|mc| mc.a()), ",")
+        join(mod_classes.iter(), ",")
+    )?;
+    for es in (0..ps.len())
+        .map(|_| 0..max_power + 1)
+        .multi_cartesian_product()
+        .filter(|es| es.iter().sum::<u32>() <= max_power_sum)
+    {
+        let n: BigInt = ps.iter().zip(es.iter()).map(|(p, e)| p.pow(*e)).product();
+        if acm.contains(&n) {
+            let atomic = acm.atomic(&n);
+            let e_string = join(es.iter(), ",");
+            writeln!(os, "{},{},{}", n, atomic, e_string)?;
+        }
+    }
+    Ok(())
+}
+
+fn survey(
+    acm: &mut ACM,
+    max_power: u32,
+    max_power_sum: u32,
+    mod_classes: &Vec<ModClass>,
+) -> Result<(), Error> {
+    survey_to(
+        &mut std::io::stdout(),
+        acm,
+        max_power,
+        max_power_sum,
+        mod_classes,
+    )?;
+    Ok(())
 }
